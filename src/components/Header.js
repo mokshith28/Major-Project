@@ -7,7 +7,7 @@ const Header = () => {
     <View style={AppStyles.header}>
       <Text style={AppStyles.title}>Handwritten Notes Converter</Text>
       <Text style={AppStyles.subtitle}>
-        Capture or select an image to extract text using Google Vision API
+        Extract text in English, Hindi & Kannada using Google Vision API
       </Text>
     </View>
   );

@@ -21,6 +21,9 @@ class OCRService {
                   maxResults: 1,
                 },
               ],
+              imageContext: {
+                languageHints: ['en', 'hi', 'kn'] // English, Hindi, Kannada
+              }
             },
           ],
         }),
