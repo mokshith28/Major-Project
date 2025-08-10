@@ -5,7 +5,7 @@ import { AppStyles } from '../styles/AppStyles';
 const PermissionScreen = ({ onRequestPermissions, isLoading }) => {
   if (isLoading) {
     return (
-      <View style={AppStyles.container}>
+      <View style={AppStyles.centeredLoadingContainer}>
         <ActivityIndicator size="large" color="#0066cc" />
         <Text style={AppStyles.loadingText}>Requesting permissions...</Text>
       </View>
@@ -13,7 +13,7 @@ const PermissionScreen = ({ onRequestPermissions, isLoading }) => {
   }
 
   return (
-    <View style={AppStyles.container}>
+    <View style={AppStyles.centeredContainer}>
       <Text style={AppStyles.errorText}>
         Camera and Media Library permissions are required to use this app.
       </Text>

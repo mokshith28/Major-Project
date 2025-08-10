@@ -1,30 +1,64 @@
 import { StyleSheet } from 'react-native';
+import { Colors } from './Colors';
 
 export const CameraStyles = StyleSheet.create({
-  camera: {
+  cameraContainer: {
     flex: 1,
+    backgroundColor: Colors.black,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  camera: {
+    width: '100%',
+    aspectRatio: 3 / 4,
   },
   cameraButtonContainer: {
-    flex: 1,
-    backgroundColor: 'transparent',
+    backgroundColor: Colors.black,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-end',
-    paddingBottom: 50,
-    paddingHorizontal: 30,
+    alignItems: 'center',
+    paddingVertical: 40,
+    paddingHorizontal: 60,
+    width: '100%',
   },
   cancelButton: {
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    padding: 15,
-    borderRadius: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    width: 55,
+    height: 55,
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingBottom: 5,
+  },
+  cancelButtonText: {
+    color: Colors.white,
+    fontSize: 24,
+    fontWeight: 'bold',
   },
   captureButton: {
-    backgroundColor: '#0066cc',
+    backgroundColor: Colors.white,
     width: 80,
     height: 80,
     borderRadius: 40,
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 6,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  rotateButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    width: 55,
+    height: 55,
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  rotateButtonText: {
+    color: Colors.white,
+    fontSize: 40,
+    fontWeight: 'bold',
+    marginTop: -12,
+    marginLeft: -2
   },
   captureButtonText: {
     fontSize: 30,

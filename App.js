@@ -53,7 +53,7 @@ export default function App() {
       // Perform OCR on selected image
       await performOCR(result.base64);
     } catch (error) {
-      Alert.alert('Error', error.message);
+      // Alert.alert('Error', error.message);
     } finally {
       setIsProcessing(false);
     }
@@ -64,7 +64,6 @@ export default function App() {
     try {
       setIsProcessing(true);
       setRecognizedText('Processing image...');
-
       const result = await OCRService.processImage(base64Image);
       setRecognizedText(result);
     } catch (error) {

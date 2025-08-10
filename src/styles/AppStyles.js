@@ -1,9 +1,10 @@
 import { StyleSheet } from 'react-native';
+import { Colors } from './Colors';
 
 export const AppStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: Colors.primaryBackground,
   },
   scrollContent: {
     flexGrow: 1,
@@ -17,67 +18,84 @@ export const AppStyles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#333',
+    color: Colors.primaryText,
     marginBottom: 10,
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
+    color: Colors.mutedText,
     textAlign: 'center',
     lineHeight: 22,
     marginBottom: 5,
   },
   buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     marginBottom: 20,
+    paddingHorizontal: 10,
   },
   button: {
-    backgroundColor: '#0066cc',
+    backgroundColor: Colors.primaryButton,
     padding: 15,
-    borderRadius: 10,
+    borderRadius: 5,
     alignItems: 'center',
-    marginBottom: 10,
+    flex: 1,
+    marginHorizontal: 5,
     elevation: 3,
-    shadowColor: '#000',
+    shadowColor: Colors.black,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
   },
   primaryButton: {
-    backgroundColor: '#0066cc',
+    backgroundColor: Colors.primaryButton,
   },
   secondaryButton: {
-    backgroundColor: '#28a745',
+    backgroundColor: Colors.secondaryButton,
   },
   buttonText: {
-    color: 'white',
+    color: Colors.white,
     fontSize: 16,
     fontWeight: '600',
   },
   disabledButton: {
-    backgroundColor: '#ccc',
+    backgroundColor: Colors.secondaryBackground,
   },
   loadingText: {
     marginTop: 10,
     fontSize: 16,
-    color: '#666',
+    color: Colors.mutedText,
   },
   errorText: {
     fontSize: 16,
-    color: '#dc3545',
+    color: Colors.error,
     textAlign: 'center',
     marginBottom: 20,
     paddingHorizontal: 20,
   },
   resetButton: {
-    backgroundColor: '#dc3545',
+    backgroundColor: Colors.error,
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',
     marginTop: 10,
   },
   resetButtonText: {
-    color: 'white',
+    color: Colors.white,
     fontSize: 16,
     fontWeight: '600',
+  },
+  centeredContainer: {
+    flex: 1,
+    backgroundColor: Colors.primaryBackground,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  centeredLoadingContainer: {
+    flex: 1,
+    backgroundColor: Colors.primaryBackground,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

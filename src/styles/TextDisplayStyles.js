@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { Colors } from './Colors';
 
 export const TextDisplayStyles = StyleSheet.create({
   imageContainer: {
@@ -8,7 +9,7 @@ export const TextDisplayStyles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
+    color: Colors.primaryText,
     marginBottom: 10,
   },
   capturedImage: {
@@ -24,7 +25,7 @@ export const TextDisplayStyles = StyleSheet.create({
   processingText: {
     marginTop: 10,
     fontSize: 16,
-    color: '#666',
+    color: Colors.mutedText,
   },
   textContainer: {
     marginBottom: 20,
@@ -36,27 +37,27 @@ export const TextDisplayStyles = StyleSheet.create({
     marginBottom: 10,
   },
   copyButton: {
-    backgroundColor: '#17a2b8',
+    backgroundColor: Colors.info,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 6,
   },
   copyButtonText: {
-    color: 'white',
+    color: Colors.white,
     fontSize: 14,
     fontWeight: '600',
   },
   textBox: {
-    backgroundColor: 'white',
+    backgroundColor: Colors.secondaryBackground,
     padding: 15,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: Colors.mutedText,
     minHeight: 100,
   },
   recognizedText: {
     fontSize: 16,
-    color: '#333',
+    color: Colors.primaryText,
     lineHeight: 24,
   },
 });

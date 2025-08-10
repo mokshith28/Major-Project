@@ -24,8 +24,6 @@ const MainScreen = ({
     <ScrollView style={AppStyles.container} contentContainerStyle={AppStyles.scrollContent}>
       <StatusBar style="dark" />
 
-      <Header />
-
       <ActionButtons
         onTakePhoto={onTakePhoto}
         onPickFromGallery={onPickFromGallery}
