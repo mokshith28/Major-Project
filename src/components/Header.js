@@ -5,9 +5,9 @@ import { AppStyles } from '../styles/AppStyles';
 const Header = () => {
   return (
     <View style={AppStyles.header}>
-      <Text style={AppStyles.title}>Handwritten Notes Converter</Text>
+      <Text style={AppStyles.title}>📝 Notes Converter</Text>
       <Text style={AppStyles.subtitle}>
-        Extract text using Google Vision
+        AI-powered text extraction from handwritten notes
       </Text>
     </View>
   );

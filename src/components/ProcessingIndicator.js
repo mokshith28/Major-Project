@@ -1,15 +1,14 @@
 import React from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
 import { TextDisplayStyles } from '../styles/TextDisplayStyles';
+import { Colors } from '../styles/Colors';
 
-const ProcessingIndicator = ({ isProcessing }) => {
-  if (!isProcessing) return null;
-
+const ProcessingIndicator = () => {
   return (
     <View style={TextDisplayStyles.processingContainer}>
-      <ActivityIndicator size="large" color="#0066cc" />
+      <ActivityIndicator size="large" color={Colors.primary} />
       <Text style={TextDisplayStyles.processingText}>
-        Processing image with cloud OCR...
+        🤖 AI is analyzing your image...
       </Text>
     </View>
   );

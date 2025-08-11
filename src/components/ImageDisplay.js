@@ -7,7 +7,7 @@ const ImageDisplay = ({ imageUri }) => {
 
   return (
     <View style={TextDisplayStyles.imageContainer}>
-      <Text style={TextDisplayStyles.sectionTitle}>Captured Image:</Text>
+      <Text style={TextDisplayStyles.sectionTitle}>📷 Captured Image</Text>
       <Image source={{ uri: imageUri }} style={TextDisplayStyles.capturedImage} />
     </View>
   );

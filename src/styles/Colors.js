@@ -1,23 +1,41 @@
-// Color palette constants for the app
+// Modern color palette constants for the app
 export const Colors = {
-  // Background colors
-  primaryBackground: '#F8F9FA',    // soft off-white, easy to read on
-  secondaryBackground: '#E9ECEF',  // light gray for cards or panels
+  // Background colors - Modern gradients and surfaces
+  background: '#F8FAFC',           // Ultra light blue-gray
+  surface: '#FFFFFF',              // Pure white for cards
+  surfaceVariant: '#F1F5F9',       // Light surface variant
 
-  // Text colors
-  primaryText: '#212529',          // deep gray for readability
-  mutedText: '#6C757D',           // subtle for less important info
+  // Text colors - High contrast for readability
+  text: '#0F172A',                 // Deep slate for primary text
+  textSecondary: '#64748B',        // Medium slate for secondary text
+  textTertiary: '#94A3B8',         // Light slate for hints
+
+  // Primary brand colors - Modern blue palette
+  primary: '#3B82F6',              // Vibrant blue
+  primaryDark: '#2563EB',          // Darker blue for press states
+  primaryLight: '#DBEAFE',         // Light blue for backgrounds
+
+  // Accent colors
+  accent: '#10B981',               // Emerald green for success
+  accentDark: '#059669',           // Darker emerald
+  accentLight: '#D1FAE5',          // Light emerald
+
+  // Status colors
+  success: '#10B981',              // Emerald green
+  warning: '#F59E0B',              // Amber
+  error: '#EF4444',                // Red
+  info: '#06B6D4',                 // Cyan
+
+  // Neutral colors
+  border: '#E2E8F0',               // Light border
+  borderDark: '#CBD5E1',           // Darker border
+  shadow: '#0F172A',               // Shadow color
 
   // Button colors
-  primaryButton: '#4E73DF',        // modern blue, stands out
-  primaryButtonHover: '#3751A4',   // darker blue for interaction feedback
-  secondaryButton: '#6C757D',      // neutral gray for less important actions
-  successButton: '#1CC88A',        // green for confirmation actions
-
-  // Utility colors
-  highlight: '#FFD166',            // warm yellow for selected text or important areas
-  error: '#E74A3B',               // bright red for alerts
-  info: '#36B9CC',                // soft teal for hints or tips
+  buttonPrimary: '#3B82F6',        // Primary button
+  buttonSecondary: '#6B7280',      // Secondary button
+  buttonSuccess: '#10B981',        // Success button
+  buttonDanger: '#EF4444',         // Danger button
 
   // Common colors
   white: '#FFFFFF',
