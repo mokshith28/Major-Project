@@ -6,19 +6,21 @@ const ActionButtons = ({ onTakePhoto, onPickFromGallery, isProcessing }) => {
   return (
     <View style={AppStyles.buttonContainer}>
       <TouchableOpacity
-        style={[AppStyles.button, AppStyles.primaryButton]}
+        style={[AppStyles.button, AppStyles.photoBtn]}
         onPress={onTakePhoto}
         disabled={isProcessing}
       >
-        <Text style={AppStyles.buttonText}>📷 Take Photo</Text>
+        <Text style={{ fontSize: 48, marginBottom: 12 }}>📷</Text>
+        <Text style={AppStyles.buttonText}>Take Photo</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={[AppStyles.button, AppStyles.secondaryButton]}
+        style={[AppStyles.button, AppStyles.galleryBtn]}
         onPress={onPickFromGallery}
         disabled={isProcessing}
       >
-        <Text style={AppStyles.buttonText}>🖼️ Choose from Gallery</Text>
+        <Text style={{ fontSize: 48, marginBottom: 12 }}>🖼️</Text>
+        <Text style={AppStyles.buttonText}>Choose from Gallery</Text>
       </TouchableOpacity>
     </View>
   );

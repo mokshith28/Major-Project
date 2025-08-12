@@ -13,27 +13,24 @@ const TextDisplay = ({ text, language, onSave, onNewPhoto }) => {
   return (
     <View style={TextDisplayStyles.textContainer}>
       <View style={TextDisplayStyles.textHeader}>
-        <Text style={TextDisplayStyles.sectionTitle}>✨ Recognized Text</Text>
+        <Text style={TextDisplayStyles.sectionTitle}>Recognized Text</Text>
         <TouchableOpacity
           style={TextDisplayStyles.copyButton}
           onPress={handleCopyToClipboard}
         >
-          <Text style={TextDisplayStyles.copyButtonText}>📋 Copy</Text>
+          <Text style={TextDisplayStyles.copyButtonText}>📋</Text>
         </TouchableOpacity>
       </View>
       <View style={TextDisplayStyles.textBox}>
         <Text style={TextDisplayStyles.recognizedText}>{text}</Text>
       </View>
-      {language && (
-        <Text style={TextDisplayStyles.languageText}>Language: {language}</Text>
-      )}
       <View style={TextDisplayStyles.actionButtons}>
         {onSave && (
           <TouchableOpacity
             style={[TextDisplayStyles.copyButton, TextDisplayStyles.saveButton]}
             onPress={onSave}
           >
-            <Text style={TextDisplayStyles.copyButtonText}>💾 Save Result</Text>
+            <Text style={TextDisplayStyles.copyButtonText}>💾</Text>
           </TouchableOpacity>
         )}
         {onNewPhoto && (
@@ -41,7 +38,7 @@ const TextDisplay = ({ text, language, onSave, onNewPhoto }) => {
             style={[TextDisplayStyles.copyButton, TextDisplayStyles.newPhotoButton]}
             onPress={onNewPhoto}
           >
-            <Text style={TextDisplayStyles.copyButtonText}>📷 New Photo</Text>
+            <Text style={TextDisplayStyles.copyButtonText}>🔄</Text>
           </TouchableOpacity>
         )}
       </View>

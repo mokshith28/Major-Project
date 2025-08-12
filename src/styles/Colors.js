@@ -33,7 +33,7 @@ export const Colors = {
 
   // Button colors
   buttonPrimary: '#3B82F6',        // Primary button
-  buttonSecondary: '#6B7280',      // Secondary button
+  buttonSecondary: '#6366F1',      // Secondary button (Indigo)
   buttonSuccess: '#10B981',        // Success button
   buttonDanger: '#EF4444',         // Danger button
 
