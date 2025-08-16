@@ -64,11 +64,6 @@ export const usePermissions = () => {
 
   const hasAllPermissions = () => {
     const result = cameraPermission?.granted === true && mediaLibraryPermission === true;
-    console.log('Permission check:', {
-      cameraGranted: cameraPermission?.granted,
-      mediaLibraryGranted: mediaLibraryPermission,
-      hasAll: result
-    });
     return result;
   };
 
