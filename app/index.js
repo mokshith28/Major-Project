@@ -36,13 +36,12 @@ export default function HomeScreen() {
   if (hasAllPermissions === false) {
     return (
       <SafeAreaView style={HomeScreenStyles.container}>
-        <Header />
         <ScrollView
           style={HomeScreenStyles.content}
           contentContainerStyle={HomeScreenStyles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          <PermissionScreen onRequestPermission={requestPermission} />
+          <PermissionScreen onRequestPermissions={requestPermission} />
         </ScrollView>
       </SafeAreaView>
     );

@@ -128,7 +128,7 @@ export const AppProvider = ({ children }) => {
     cameraRef,
 
     // Permissions
-    hasAllPermissions: hasAllPermissions(),
+    hasAllPermissions: permissionsLoading ? null : hasAllPermissions(),
     requestPermission: requestAllPermissions,
 
     // Actions
