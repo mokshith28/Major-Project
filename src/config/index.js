@@ -1,6 +1,7 @@
 // Configuration constants
 export const API_CONFIG = {
   GOOGLE_VISION_API_KEY: process.env.EXPO_PUBLIC_GOOGLE_VISION_API_KEY,
+  GOOGLE_VISION_URL: 'https://vision.googleapis.com/v1/images:annotate',
 };
 
 export const APP_CONFIG = {

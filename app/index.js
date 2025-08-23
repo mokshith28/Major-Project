@@ -1,5 +1,5 @@
 import React from 'react';
-import AppContainer from '../src/containers/AppContainer';
+import { AppContainer } from '../src/containers';
 
 export default function HomeScreen() {
   return <AppContainer />;

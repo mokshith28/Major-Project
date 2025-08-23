@@ -6,7 +6,6 @@ export const copyToClipboard = async (text) => {
     await Clipboard.setStringAsync(text);
     // Alert.alert('Success', 'Text copied to clipboard!');
   } catch (error) {
-    console.error('Error copying to clipboard:', error);
     // Alert.alert('Error', 'Failed to copy text to clipboard');
   }
 };

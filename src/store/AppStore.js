@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer, useEffect, useMemo, useCallback } from 'react';
+import { createContext, useContext, useReducer, useEffect, useMemo } from 'react';
 import { usePermissions } from '../hooks/usePermissions';
 import { SCREEN_STATES } from '../constants';
 
@@ -67,23 +67,20 @@ export const useAppStore = () => {
 
 export const AppProvider = ({ children }) => {
   const [state, dispatch] = useReducer(appReducer, initialState);
-  const { hasAllPermissions, permissionsLoading, requestAllPermissions } = usePermissions();
-
-  // Memoize the permission check result to prevent infinite re-renders
-  const allPermissionsGranted = useMemo(() => hasAllPermissions(), [hasAllPermissions]);
+  const { hasAllPermissions, permissionsLoading, requestAllPermissions, cameraPermission, mediaLibraryPermission } = usePermissions();
 
   // Update screen state based on permissions
   useEffect(() => {
     if (permissionsLoading) {
       dispatch({ type: ACTIONS.SET_SCREEN_STATE, payload: SCREEN_STATES.LOADING });
-    } else if (!allPermissionsGranted) {
+    } else if (!hasAllPermissions()) {
       dispatch({ type: ACTIONS.SET_SCREEN_STATE, payload: SCREEN_STATES.PERMISSIONS_REQUIRED });
     } else if (state.screenState === SCREEN_STATES.LOADING || state.screenState === SCREEN_STATES.PERMISSIONS_REQUIRED) {
       dispatch({ type: ACTIONS.SET_SCREEN_STATE, payload: SCREEN_STATES.HOME });
     }
-  }, [permissionsLoading, allPermissionsGranted, state.screenState]);
+  }, [permissionsLoading, cameraPermission?.granted, mediaLibraryPermission, state.screenState]);
 
-  // Memoize actions to prevent unnecessary re-renders
+  // Actions
   const actions = useMemo(() => ({
     setScreenState: (state) => dispatch({ type: ACTIONS.SET_SCREEN_STATE, payload: state }),
     setCapturedImage: (image) => dispatch({ type: ACTIONS.SET_CAPTURED_IMAGE, payload: image }),
@@ -95,12 +92,11 @@ export const AppProvider = ({ children }) => {
     requestPermissions: requestAllPermissions,
   }), [requestAllPermissions]);
 
-  // Memoize the context value to prevent unnecessary re-renders
   const value = useMemo(() => ({
     ...state,
     ...actions,
-    hasAllPermissions: allPermissionsGranted,
-  }), [state, actions, allPermissionsGranted]);
+    hasAllPermissions,
+  }), [state, actions, hasAllPermissions]);
 
   return (
     <AppContext.Provider value={value}>

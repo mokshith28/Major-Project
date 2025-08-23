@@ -18,7 +18,6 @@ export const usePermissions = () => {
         const mediaLibraryStatus = await MediaLibrary.getPermissionsAsync();
         setMediaLibraryPermission(mediaLibraryStatus.status === 'granted');
       } catch (error) {
-        console.error('Error checking media library permissions:', error);
         setMediaLibraryPermission(false);
       } finally {
         setPermissionsLoading(false);
@@ -55,7 +54,6 @@ export const usePermissions = () => {
         );
       }
     } catch (error) {
-      console.error('Error requesting permissions:', error);
       Alert.alert('Error', 'Failed to request permissions');
     } finally {
       setPermissionsLoading(false);
@@ -63,8 +61,7 @@ export const usePermissions = () => {
   }, [requestCameraPermission]);
 
   const hasAllPermissions = useCallback(() => {
-    const result = cameraPermission?.granted === true && mediaLibraryPermission === true;
-    return result;
+    return cameraPermission?.granted === true && mediaLibraryPermission === true;
   }, [cameraPermission?.granted, mediaLibraryPermission]);
 
   return {

@@ -44,9 +44,7 @@ class OCRService {
 
       return 'No text found in the image';
     } catch (error) {
-      console.error('OCR Error:', error);
-      
-      if (error.message.includes('fetch')) {
+      if (error.message.includes('fetch') || error.message.includes('Network')) {
         throw new Error(APP_ERRORS.NETWORK_ERROR);
       }
       

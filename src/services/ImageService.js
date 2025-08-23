@@ -24,7 +24,6 @@ class ImageService {
         base64: photo.base64
       };
     } catch (error) {
-      console.error('Camera Error:', error);
       throw new Error(`${APP_ERRORS.CAMERA_UNAVAILABLE}: ${error.message}`);
     }
   }
@@ -48,7 +47,6 @@ class ImageService {
         base64: image.base64
       };
     } catch (error) {
-      console.error('Gallery Error:', error);
       throw new Error(`Failed to pick image: ${error.message}`);
     }
   }
