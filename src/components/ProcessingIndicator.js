@@ -8,7 +8,7 @@ const ProcessingIndicator = () => {
     <View style={TextDisplayStyles.processingContainer}>
       <ActivityIndicator size="large" color={Colors.primary} />
       <Text style={TextDisplayStyles.processingText}>
-        🤖 AI is analyzing your image...
+        🔍 Extracting text from image...
       </Text>
     </View>
   );

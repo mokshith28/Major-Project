@@ -2,17 +2,20 @@ import { Tabs } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Colors, TabBarStyles } from '../src/styles';
 import { TabIcon } from '../src/components';
-import { AppProvider, useAppContext } from '../src/context';
+import { AppProvider } from '../src/store/AppStore';
+import { useAppStore } from '../src/store/AppStore';
+import { SCREEN_STATES } from '../src/constants';
 
 function TabsLayout() {
-  const { showCamera } = useAppContext();
+  const { screenState } = useAppStore();
+  const hideTabBar = screenState === SCREEN_STATES.CAMERA;
 
   return (
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors.primary,
         tabBarInactiveTintColor: Colors.textTertiary,
-        tabBarStyle: showCamera ? TabBarStyles.tabBarHidden : TabBarStyles.tabBar,
+        tabBarStyle: hideTabBar ? TabBarStyles.tabBarHidden : TabBarStyles.tabBar,
         tabBarLabelStyle: TabBarStyles.tabBarLabel,
         tabBarItemStyle: TabBarStyles.tabBarItem,
         headerShown: false,

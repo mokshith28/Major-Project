@@ -31,6 +31,7 @@ yarn-error.*
 *.pem
 
 # local env files
+.env
 .env*.local
 
 # typescript
@@ -59,4 +60,3 @@ Thumbs.db
 ehthumbs.db
 
 *.uusver
-config.js

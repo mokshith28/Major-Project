@@ -1,22 +1,22 @@
 import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
+import { APP_CONFIG } from '../config';
+import { APP_ERRORS } from '../constants';
 
 class ImageService {
-  // Function to take a picture using the camera
   static async takePicture(cameraRef) {
     if (!cameraRef) {
-      throw new Error('Camera reference is not available');
+      throw new Error(APP_ERRORS.CAMERA_UNAVAILABLE);
     }
 
     try {
-      // Capture photo with high quality settings
       const photo = await cameraRef.takePictureAsync({
-        quality: 0.8,
-        base64: true, // We need base64 for cloud OCR APIs
+        quality: APP_CONFIG.IMAGE_QUALITY,
+        base64: true,
         exif: false,
       });
 
-      // Save the photo to device's media library
+      // Save to media library
       await MediaLibrary.createAssetAsync(photo.uri);
 
       return {
@@ -24,34 +24,32 @@ class ImageService {
         base64: photo.base64
       };
     } catch (error) {
-      console.error('Error taking picture:', error);
-      throw new Error('Failed to take picture: ' + error.message);
+      console.error('Camera Error:', error);
+      throw new Error(`${APP_ERRORS.CAMERA_UNAVAILABLE}: ${error.message}`);
     }
   }
 
-  // Function to select image from gallery
-  static async pickImageFromGallery() {
+  static async pickFromGallery() {
     try {
-      // Launch image picker with specific options
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
-        quality: 0.8,
-        base64: true, // We need base64 for cloud OCR APIs
+        quality: APP_CONFIG.IMAGE_QUALITY,
+        base64: true,
       });
 
-      if (!result.canceled && result.assets[0]) {
-        const image = result.assets[0];
-        return {
-          uri: image.uri,
-          base64: image.base64
-        };
-      } else {
-        throw new Error('No image selected');
+      if (result.canceled || !result.assets?.[0]) {
+        return null; // User cancelled
       }
+
+      const image = result.assets[0];
+      return {
+        uri: image.uri,
+        base64: image.base64
+      };
     } catch (error) {
-      console.error('Error picking image:', error);
-      throw new Error('Failed to pick image from gallery: ' + error.message);
+      console.error('Gallery Error:', error);
+      throw new Error(`Failed to pick image: ${error.message}`);
     }
   }
 }

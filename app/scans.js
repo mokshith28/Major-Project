@@ -1,10 +1,18 @@
 import React from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, Alert } from 'react-native';
 import { YourScansScreen } from '../src/components';
-import { useAppContext } from '../src/context';
+import { useAppStore } from '../src/store/AppStore';
 
 export default function ScansScreen() {
-  const { savedScans, handleScanPress } = useAppContext();
+  const { savedScans } = useAppStore();
+
+  const handleScanPress = (scan) => {
+    Alert.alert(
+      'Scan Details',
+      `Text: ${scan.text}\n\nLanguage: ${scan.language}\nDate: ${scan.date}`,
+      [{ text: 'OK' }]
+    );
+  };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>

@@ -1,33 +1,35 @@
-import { OCR_CONFIG } from '../../config';
+import { API_CONFIG, APP_CONFIG } from '../config';
+import { APP_ERRORS } from '../constants';
 
 class OCRService {
-  // Google Vision API OCR function
-  static async googleVisionOCR(base64Image) {
+  static async processImage(base64Image) {
+    if (!base64Image) {
+      throw new Error(APP_ERRORS.UNKNOWN_ERROR);
+    }
+
+    // Check if API key is available
+    if (!API_CONFIG.GOOGLE_VISION_API_KEY) {
+      throw new Error('Google Vision API key is not configured. Please check your .env file and ensure EXPO_PUBLIC_GOOGLE_VISION_API_KEY is set.');
+    }
+
     try {
-      const response = await fetch(`https://vision.googleapis.com/v1/images:annotate?key=${OCR_CONFIG.GOOGLE_VISION_API_KEY}`, {
+      const response = await fetch(`${API_CONFIG.GOOGLE_VISION_URL}?key=${API_CONFIG.GOOGLE_VISION_API_KEY}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          requests: [
-            {
-              image: {
-                content: base64Image,
-              },
-              features: [
-                {
-                  type: 'TEXT_DETECTION',
-                  maxResults: 1,
-                },
-              ],
-              imageContext: {
-                languageHints: ['en', 'hi', 'kn'] // English, Hindi, Kannada
-              }
-            },
-          ],
+          requests: [{
+            image: { content: base64Image },
+            features: [{ type: 'TEXT_DETECTION', maxResults: 1 }],
+            imageContext: { languageHints: APP_CONFIG.SUPPORTED_LANGUAGES }
+          }],
         }),
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
 
       const result = await response.json();
 
@@ -35,26 +37,20 @@ class OCRService {
         throw new Error(result.error.message);
       }
 
-      if (result.responses && result.responses[0] && result.responses[0].textAnnotations) {
-        const detectedText = result.responses[0].textAnnotations[0].description;
-        return detectedText || 'No text found in the image';
-      } else {
-        return 'No text found in the image';
+      const textAnnotations = result.responses?.[0]?.textAnnotations;
+      if (textAnnotations && textAnnotations.length > 0) {
+        return textAnnotations[0].description || 'No text found in the image';
       }
-    } catch (error) {
-      console.error('Google Vision API Error:', error);
-      throw new Error(`API Error: ${error.message}\n\nPlease check your API key and network connection.`);
-    }
-  }
 
-  // Main OCR processing function
-  static async processImage(base64Image) {
-    try {
-      // Use real Google Vision API
-      return await this.googleVisionOCR(base64Image);
+      return 'No text found in the image';
     } catch (error) {
       console.error('OCR Error:', error);
-      throw error;
+      
+      if (error.message.includes('fetch')) {
+        throw new Error(APP_ERRORS.NETWORK_ERROR);
+      }
+      
+      throw new Error(`${APP_ERRORS.OCR_FAILED}: ${error.message}`);
     }
   }
 }
