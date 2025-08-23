@@ -1,6 +1,6 @@
 // Configuration constants
 export const API_CONFIG = {
-  GOOGLE_VISION_API_KEY: process.env.EXPO_PUBLIC_GOOGLE_VISION_API_KEY,s
+  GOOGLE_VISION_API_KEY: process.env.EXPO_PUBLIC_GOOGLE_VISION_API_KEY,
 };
 
 export const APP_CONFIG = {
