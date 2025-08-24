@@ -9,7 +9,7 @@ export default function ScansContainer() {
   const handleScanPress = (scan) => {
     Alert.alert(
       'Scan Details',
-      `Text: ${scan.text}\n\nLanguage: ${scan.language}\nDate: ${scan.date}`,
+      `Text: ${scan.text}\n\nDate: ${scan.date}`,
       [{ text: 'OK' }]
     );
   };

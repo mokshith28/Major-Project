@@ -1,9 +1,14 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { 
+  View, 
+  Text, 
+  TouchableOpacity
+} from 'react-native';
 import { TextDisplayStyles } from '../styles/TextDisplayStyles';
 import { copyToClipboard } from '../utils';
+import SubjectActions from './SubjectActions';
 
-const TextDisplay = ({ text, language, onSave, onNewPhoto }) => {
+const TextDisplay = ({ text, onSave, onNewPhoto }) => {
   if (!text) return null;
 
   const handleCopyToClipboard = () => {
@@ -24,24 +29,8 @@ const TextDisplay = ({ text, language, onSave, onNewPhoto }) => {
       <View style={TextDisplayStyles.textBox}>
         <Text style={TextDisplayStyles.recognizedText}>{text}</Text>
       </View>
-      <View style={TextDisplayStyles.actionButtons}>
-        {onSave && (
-          <TouchableOpacity
-            style={[TextDisplayStyles.copyButton, TextDisplayStyles.saveButton]}
-            onPress={onSave}
-          >
-            <Text style={TextDisplayStyles.copyButtonText}>💾</Text>
-          </TouchableOpacity>
-        )}
-        {onNewPhoto && (
-          <TouchableOpacity
-            style={[TextDisplayStyles.copyButton, TextDisplayStyles.newPhotoButton]}
-            onPress={onNewPhoto}
-          >
-            <Text style={TextDisplayStyles.copyButtonText}>🔄</Text>
-          </TouchableOpacity>
-        )}
-      </View>
+      
+      <SubjectActions onSave={onSave} onNewPhoto={onNewPhoto} />
     </View>
   );
 };

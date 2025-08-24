@@ -9,16 +9,7 @@ const ImageGallery = ({ images = [] }) => {
   const [currentPage, setCurrentPage] = useState(0);
 
   if (!images || images.length === 0) return null;
-
-  // If only one image, use the simple display
-  if (images.length === 1) {
-    return (
-      <View style={TextDisplayStyles.imageContainer}>
-        <Image source={{ uri: images[0].uri }} style={TextDisplayStyles.capturedImage} />
-      </View>
-    );
-  }
-
+  
   return (
     <View style={TextDisplayStyles.imageContainer}>
       <Text style={TextDisplayStyles.galleryCounter}>

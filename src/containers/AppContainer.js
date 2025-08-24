@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ScrollView, Alert } from 'react-native';
+import { View, ScrollView, Platform, ToastAndroid, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   ActionButtons,
@@ -8,7 +8,8 @@ import {
   PermissionScreen,
   ImageGallery,
   ProcessingIndicator,
-  TextDisplay
+  TextDisplay,
+  SubjectActions
 } from '../components';
 import { useAppStore } from '../store/AppStore';
 import { ImageService, OCRService } from '../services';
@@ -42,14 +43,14 @@ export default function AppContainer() {
   const handleCapture = async () => {
     try {
       setProcessing(true);
-      const result = await ImageService.takePicture(cameraRef);
-      setCapturedImages([result]); // Store as array for consistency
-      setCapturedImage(result.uri);
+      const imageResult = await ImageService.takePicture(cameraRef);
+      setCapturedImages([imageResult]); // Store as array for consistency
+      setCapturedImage(imageResult.uri);
       setScreenState(SCREEN_STATES.PROCESSING);
       
       // Perform OCR
-      const text = await OCRService.processImage(result.base64);
-      setRecognizedText({ text, language: 'auto' });
+      const text = await OCRService.processImage(imageResult.base64);
+      setRecognizedText({ text });
       setScreenState(SCREEN_STATES.RESULTS);
     } catch (error) {
       Alert.alert('Error', error.message);
@@ -62,33 +63,33 @@ export default function AppContainer() {
   const handlePickFromGallery = async () => {
     try {
       setProcessing(true);
-      const result = await ImageService.pickFromGallery();
+      const galleryResult = await ImageService.pickFromGallery();
       
-      if (!result) {
+      if (!galleryResult) {
         setProcessing(false);
         return; // User cancelled
       }
 
       // Handle single or multiple images
-      if (Array.isArray(result)) {
+      if (Array.isArray(galleryResult)) {
         // Multiple images selected
-        setCapturedImages(result); // Store all images
-        setCapturedImage(result[0].uri); // Show first image
+        setCapturedImages(galleryResult); // Store all images
+        setCapturedImage(galleryResult[0].uri); // Show first image
         setScreenState(SCREEN_STATES.PROCESSING);
         
         // Process all images and combine text
-        const base64Images = result.map(img => img.base64);
+        const base64Images = galleryResult.map(img => img.base64);
         const combinedText = await OCRService.processMultipleImages(base64Images);
-        setRecognizedText({ text: combinedText, language: 'auto' });
+        setRecognizedText({ text: combinedText });
       } else {
         // Single image selected (backward compatibility)
-        setCapturedImages([result]); // Store as array for consistency
-        setCapturedImage(result.uri);
+        setCapturedImages([galleryResult]); // Store as array for consistency
+        setCapturedImage(galleryResult.uri);
         setScreenState(SCREEN_STATES.PROCESSING);
         
         // Perform OCR on single image
-        const text = await OCRService.processImage(result.base64);
-        setRecognizedText({ text, language: 'auto' });
+        const text = await OCRService.processImage(galleryResult.base64);
+        setRecognizedText({ text });
       }
       
       setScreenState(SCREEN_STATES.RESULTS);
@@ -99,16 +100,21 @@ export default function AppContainer() {
     }
   };
 
-  const handleSave = () => {
+  const handleSave = (subject = 'General Notes') => {
     if (recognizedText?.text) {
       const newScan = {
         text: recognizedText.text,
-        language: recognizedText.language,
+        subject: subject,
         date: new Date().toLocaleDateString(),
         timestamp: Date.now(),
       };
       addScan(newScan);
-      Alert.alert('Success', 'Scan saved successfully!');
+    
+      if (Platform.OS === 'android') {
+        ToastAndroid.show('Scan saved successfully!', ToastAndroid.SHORT);
+      } else {
+        Alert.alert('✅ Success!', 'Scan saved successfully!');
+      }
     }
   };
 
@@ -149,7 +155,6 @@ export default function AppContainer() {
             <ImageGallery images={capturedImages} />
             <TextDisplay
               text={recognizedText?.text}
-              language={recognizedText?.language}
               onSave={handleSave}
               onNewPhoto={handleReset}
             />

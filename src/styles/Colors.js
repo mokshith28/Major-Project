@@ -28,7 +28,7 @@ export const Colors = {
 
   // Neutral colors
   border: '#E2E8F0',               // Light border
-  borderDark: '#CBD5E1',           // Darker border
+  borderDark: '#93989eff',           // Darker border
   shadow: '#0F172A',               // Shadow color
 
   // Button colors

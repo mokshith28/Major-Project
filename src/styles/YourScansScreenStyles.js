@@ -67,6 +67,13 @@ const YourScansScreenStyles = StyleSheet.create({
     borderRadius: 8,
     alignSelf: 'flex-start',
   },
+  scanSubject: {
+    fontSize: 14,
+    color: Colors.success,
+    fontWeight: '600',
+    marginBottom: 8,
+    fontStyle: 'italic',
+  },
   emptyState: {
     flex: 1,
     justifyContent: 'center',

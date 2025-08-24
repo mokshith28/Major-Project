@@ -63,7 +63,7 @@ class OCRService {
       // Process each image and collect the text
       for (let i = 0; i < base64Images.length; i++) {
         const text = await this.processImage(base64Images[i]);
-        textResults.push(`${text}`);
+        textResults.push(text);
       }
 
       // Combine all text results

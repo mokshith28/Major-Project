@@ -12,10 +12,12 @@ const YourScansScreen = ({ scans, onScanPress }) => {
         <Text style={YourScansScreenStyles.scanTitle}>Scan #{index + 1}</Text>
         <Text style={YourScansScreenStyles.scanDate}>{item.date}</Text>
       </View>
+      {item.subject && (
+        <Text style={YourScansScreenStyles.scanSubject}>📚 {item.subject}</Text>
+      )}
       <Text style={YourScansScreenStyles.scanPreview} numberOfLines={3}>
         {item.text}
       </Text>
-      <Text style={YourScansScreenStyles.scanLanguage}>Language: {item.language}</Text>
     </TouchableOpacity>
   );
 
