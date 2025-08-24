@@ -37,7 +37,8 @@ const YourScansScreenStyles = StyleSheet.create({
     padding: 20,
     flex: 1,
     borderRadius: 20,
-    borderWidth: 1
+    borderWidth: 1,
+    minHeight: 185
   },
   scanHeader: {
     flexDirection: 'row',
