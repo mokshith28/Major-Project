@@ -1,6 +1,8 @@
 import { createContext, useContext, useReducer, useEffect, useMemo } from 'react';
 import { usePermissions } from '../hooks/usePermissions';
 import { SCREEN_STATES } from '../constants';
+import { loadScansFromStorage, addScanToStorage, removeScanFromStorage } from '../utils';
+import { getStoredSubjects, addNewSubject, removeSubject } from '../utils';
 
 // Initial state
 const initialState = {
@@ -9,6 +11,7 @@ const initialState = {
   recognizedText: null,
   isProcessing: false,
   savedScans: [],
+  subjects: [], // Add subjects to global state
   error: null,
 };
 
@@ -19,6 +22,11 @@ const ACTIONS = {
   SET_RECOGNIZED_TEXT: 'SET_RECOGNIZED_TEXT',
   SET_PROCESSING: 'SET_PROCESSING',
   ADD_SCAN: 'ADD_SCAN',
+  DELETE_SCAN: 'DELETE_SCAN',
+  LOAD_SCANS: 'LOAD_SCANS',
+  LOAD_SUBJECTS: 'LOAD_SUBJECTS',
+  ADD_SUBJECT: 'ADD_SUBJECT',
+  REMOVE_SUBJECT: 'REMOVE_SUBJECT',
   SET_ERROR: 'SET_ERROR',
   RESET_APP: 'RESET_APP',
 };
@@ -38,6 +46,31 @@ function appReducer(state, action) {
       return { 
         ...state, 
         savedScans: [action.payload, ...state.savedScans]
+      };
+    case ACTIONS.DELETE_SCAN:
+      return {
+        ...state,
+        savedScans: state.savedScans.filter(scan => scan.timestamp !== action.payload.timestamp)
+      };
+    case ACTIONS.LOAD_SCANS:
+      return {
+        ...state,
+        savedScans: action.payload
+      };
+    case ACTIONS.LOAD_SUBJECTS:
+      return {
+        ...state,
+        subjects: action.payload
+      };
+    case ACTIONS.ADD_SUBJECT:
+      return {
+        ...state,
+        subjects: [...state.subjects, action.payload].sort()
+      };
+    case ACTIONS.REMOVE_SUBJECT:
+      return {
+        ...state,
+        subjects: state.subjects.filter(subject => subject !== action.payload)
       };
     case ACTIONS.SET_ERROR:
       return { ...state, error: action.payload };
@@ -80,17 +113,71 @@ export const AppProvider = ({ children }) => {
     }
   }, [permissionsLoading, cameraPermission?.granted, mediaLibraryPermission, state.screenState]);
 
+  // Load saved scans from storage on app start
+  useEffect(() => {
+    const loadSavedScans = async () => {
+      const scans = await loadScansFromStorage();
+      dispatch({ type: ACTIONS.LOAD_SCANS, payload: scans });
+    };
+    loadSavedScans();
+  }, []);
+
+  // Load subjects from storage on app start
+  useEffect(() => {
+    const loadSubjects = async () => {
+      const subjects = await getStoredSubjects();
+      dispatch({ type: ACTIONS.LOAD_SUBJECTS, payload: subjects });
+    };
+    loadSubjects();
+  }, []);
+
+  // Load saved scans when app starts
+  useEffect(() => {
+    const loadSavedScans = async () => {
+      const scans = await loadScansFromStorage();
+      dispatch({ type: ACTIONS.LOAD_SCANS, payload: scans });
+    };
+    loadSavedScans();
+  }, []);
+
   // Actions
   const actions = useMemo(() => ({
     setScreenState: (state) => dispatch({ type: ACTIONS.SET_SCREEN_STATE, payload: state }),
     setCapturedImage: (image) => dispatch({ type: ACTIONS.SET_CAPTURED_IMAGE, payload: image }),
     setRecognizedText: (text) => dispatch({ type: ACTIONS.SET_RECOGNIZED_TEXT, payload: text }),
     setProcessing: (processing) => dispatch({ type: ACTIONS.SET_PROCESSING, payload: processing }),
-    addScan: (scan) => dispatch({ type: ACTIONS.ADD_SCAN, payload: scan }),
+    addScan: async (scan) => {
+      dispatch({ type: ACTIONS.ADD_SCAN, payload: scan });
+      await addScanToStorage(scan);
+    },
+    deleteScan: async (scan) => {
+      dispatch({ type: ACTIONS.DELETE_SCAN, payload: scan });
+      await removeScanFromStorage(scan);
+    },
+    loadScans: async () => {
+      const scans = await loadScansFromStorage();
+      dispatch({ type: ACTIONS.LOAD_SCANS, payload: scans });
+    },
+    addSubject: async (subjectName) => {
+      const result = await addNewSubject(subjectName, state.subjects);
+      if (result.success) {
+        dispatch({ type: ACTIONS.LOAD_SUBJECTS, payload: result.subjects });
+        return result;
+      }
+      return result;
+    },
+    removeSubject: async (subjectName) => {
+      const result = await removeSubject(subjectName, state.subjects);
+      if (result.success) {
+        dispatch({ type: ACTIONS.LOAD_SUBJECTS, payload: result.subjects });
+        return result;
+      }
+      return result;
+    },
     setError: (error) => dispatch({ type: ACTIONS.SET_ERROR, payload: error }),
     resetApp: () => dispatch({ type: ACTIONS.RESET_APP }),
     requestPermissions: requestAllPermissions,
-  }), [requestAllPermissions]);
+  }), [requestAllPermissions, state.subjects]);
 
   const value = useMemo(() => ({
     ...state,

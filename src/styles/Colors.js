@@ -14,6 +14,9 @@ export const Colors = {
   primary: '#3B82F6',              // Vibrant blue
   primaryDark: '#2563EB',          // Darker blue for press states
   primaryLight: '#DBEAFE',         // Light blue for backgrounds
+  secondary: '#5d3bf6ff',            // Secondary elements
+  secondaryDark: '#3721b6ff',         // Darker purple for press states
+  secondaryLight: '#dad7ffff',       // Light purple for backgrounds
 
   // Accent colors
   accent: '#10B981',               // Emerald green for success

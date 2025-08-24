@@ -25,7 +25,7 @@ export const SubjectActionsStyles = StyleSheet.create({
     letterSpacing: -0.3,
   },
   manageButton: {
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: Colors.surface,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 12,
@@ -58,10 +58,10 @@ export const SubjectActionsStyles = StyleSheet.create({
     maxWidth: 140,
   },
   saveButton: {
-    backgroundColor: Colors.success,
+    backgroundColor: Colors.surfaceVariant,
   },
   newPhotoButton: {
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.surfaceVariant,
   },
   actionButtonText: {
     color: Colors.white,
@@ -109,20 +109,21 @@ export const SubjectActionsStyles = StyleSheet.create({
     borderRadius: 8,
     padding: 12,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.borderDark,
     fontSize: 16,
     color: Colors.text,
   },
   addButton: {
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.surfaceVariant,
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 8,
     justifyContent: 'center',
     borderWidth: 1,
+    borderColor: Colors.borderDark,
   },
   addButtonText: {
-    color: Colors.white,
+    color: Colors.text,
     fontWeight: '600',
     fontSize: 16,
   },
@@ -164,7 +165,7 @@ export const SubjectActionsStyles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.borderDark,
   },
   closeButtonText: {
     color: Colors.text,

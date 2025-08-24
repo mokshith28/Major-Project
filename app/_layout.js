@@ -13,7 +13,7 @@ function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors.primary,
+        tabBarActiveTintColor: Colors.text,
         tabBarInactiveTintColor: Colors.textTertiary,
         tabBarStyle: hideTabBar ? TabBarStyles.tabBarHidden : TabBarStyles.tabBar,
         tabBarLabelStyle: TabBarStyles.tabBarLabel,

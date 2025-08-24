@@ -27,10 +27,15 @@ const YourScansScreenStyles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 24,
   },
+  scanItemContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
   scanItem: {
     backgroundColor: Colors.surface,
     padding: 20,
-    marginBottom: 16,
+    flex: 1,
     borderRadius: 20,
     borderWidth: 1
   },
@@ -56,16 +61,6 @@ const YourScansScreenStyles = StyleSheet.create({
     color: Colors.textSecondary,
     lineHeight: 22,
     marginBottom: 12,
-  },
-  scanLanguage: {
-    fontSize: 12,
-    color: Colors.primary,
-    fontWeight: '600',
-    backgroundColor: Colors.primaryLight,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-    alignSelf: 'flex-start',
   },
   scanSubject: {
     fontSize: 14,
@@ -97,6 +92,88 @@ const YourScansScreenStyles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 24,
     fontWeight: '400',
+  },
+  
+  // Subject-related styles
+  subjectsList: {
+    flex: 1,
+    paddingHorizontal: 24,
+  },
+  subjectItem: {
+    backgroundColor: Colors.surface,
+    padding: 20,
+    marginBottom: 16,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  subjectHeader: {
+    flex: 1,
+  },
+  subjectTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: Colors.text,
+    marginBottom: 4,
+    letterSpacing: -0.25,
+  },
+  subjectCount: {
+    fontSize: 14,
+    color: Colors.textSecondary,
+    fontWeight: '500',
+  },
+  subjectArrow: {
+    fontSize: 24,
+    color: Colors.textSecondary,
+    fontWeight: '300',
+  },
+  emptySubjectItem: {
+    backgroundColor: '#f5f5f5',
+    opacity: 0.7,
+    borderStyle: 'dashed',
+    borderColor: '#ddd',
+  },
+  emptySubjectTitle: {
+    color: '#888',
+    fontStyle: 'italic',
+  },
+  emptySubjectCount: {
+    color: '#aaa',
+  },
+  emptySubjectArrow: {
+    color: '#ccc',
+  },
+  backButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    alignSelf: 'flex-start',
+    borderWidth: 1,
+    borderColor: Colors.black,
+    borderRadius: 15,
+    marginBottom: 8,
+  },
+  backButtonText: {
+    fontSize: 16,
+    color: Colors.black,
+    fontWeight: '600',
+  },
+  deleteButton: {
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.shadow,
+    borderRadius: 15,
+    marginLeft: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    minWidth: 60,
+    height: 185,
+  },
+  deleteButtonText: {
+    fontSize: 18,
+    color: 'white',
   },
 });
 

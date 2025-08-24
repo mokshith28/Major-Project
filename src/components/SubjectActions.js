@@ -13,11 +13,11 @@ import {
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { SubjectActionsStyles } from '../styles/SubjectActionsStyles';
-import { getStoredSubjects, addNewSubject, removeSubject } from '../utils';
+import { useAppStore } from '../store/AppStore';
 
 const SubjectActions = ({ onSave, onNewPhoto }) => {
-  const [selectedSubject, setSelectedSubject] = useState('General Notes');
-  const [subjects, setSubjects] = useState([]);
+  const { subjects, addSubject, removeSubject, savedScans, deleteScan, addScan } = useAppStore();
+  const [selectedSubject, setSelectedSubject] = useState('');
   const [showManageModal, setShowManageModal] = useState(false);
   const [newSubjectText, setNewSubjectText] = useState('');
 
@@ -33,15 +33,25 @@ const SubjectActions = ({ onSave, onNewPhoto }) => {
   };
 
   useEffect(() => {
-    loadSubjects();
+    // Remove loadSubjects since subjects come from global state
   }, []);
 
+  // Set selected subject when subjects are loaded and no subject is selected
+  useEffect(() => {
+    if (subjects.length > 0 && !selectedSubject) {
+      setSelectedSubject(subjects[0]);
+    }
+  }, [subjects, selectedSubject]);
+
   const loadSubjects = async () => {
-    const storedSubjects = await getStoredSubjects();
-    setSubjects(storedSubjects);
+    // No longer needed - subjects come from global state
   };
 
   const handleSave = () => {
+    if (!selectedSubject) {
+      showToast('Please select a subject category');
+      return;
+    }
     if (onSave) {
       onSave(selectedSubject);
     }
@@ -53,9 +63,8 @@ const SubjectActions = ({ onSave, onNewPhoto }) => {
       return;
     }
 
-    const result = await addNewSubject(newSubjectText, subjects);
+    const result = await addSubject(newSubjectText.trim());
     if (result.success) {
-      setSubjects(result.subjects);
       setSelectedSubject(newSubjectText.trim());
       setNewSubjectText('');
       showToast('Subject added successfully!');
@@ -65,16 +74,56 @@ const SubjectActions = ({ onSave, onNewPhoto }) => {
   };
 
   const handleRemoveSubject = async (subjectToRemove) => {
-    const result = await removeSubject(subjectToRemove, subjects);
+    // Check if there are scans with this subject
+    const scansWithSubject = savedScans.filter(scan => scan.subject === subjectToRemove);
+    
+    if (scansWithSubject.length > 0) {
+      // Show warning about deleting scans
+      Alert.alert(
+        'Delete Subject?',
+        `This will delete the subject "${subjectToRemove}" and ${scansWithSubject.length} scan${scansWithSubject.length === 1 ? '' : 's'}. This action cannot be undone.`,
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+          {
+            text: 'Delete All',
+            style: 'destructive',
+            onPress: () => deleteSubjectAndScans(subjectToRemove),
+          },
+        ]
+      );
+    } else {
+      // No scans, safe to delete
+      proceedWithSubjectDeletion(subjectToRemove);
+    }
+  };
+
+  const proceedWithSubjectDeletion = async (subjectToRemove) => {
+    const result = await removeSubject(subjectToRemove);
     if (result.success) {
-      setSubjects(result.subjects);
       if (selectedSubject === subjectToRemove) {
-        setSelectedSubject('General Notes');
+        // Set to first available subject
+        setSelectedSubject(subjects.length > 1 ? subjects.find(s => s !== subjectToRemove) : '');
       }
       showToast(`Subject "${subjectToRemove}" removed successfully!`);
     } else {
       showToast(result.error || 'Could not remove subject');
     }
+  };
+
+  const deleteSubjectAndScans = async (subjectToRemove) => {
+    // Delete all scans with this subject
+    const scansToDelete = savedScans.filter(scan => scan.subject === subjectToRemove);
+    
+    for (const scan of scansToDelete) {
+      await deleteScan(scan);
+    }
+    
+    // Now delete the subject
+    await proceedWithSubjectDeletion(subjectToRemove);
+    showToast(`Deleted subject and ${scansToDelete.length} scan${scansToDelete.length === 1 ? '' : 's'}`);
   };
 
   return (

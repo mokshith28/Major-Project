@@ -100,15 +100,15 @@ export default function AppContainer() {
     }
   };
 
-  const handleSave = (subject = 'General Notes') => {
-    if (recognizedText?.text) {
+  const handleSave = async (subject) => {
+    if (recognizedText?.text && subject) {
       const newScan = {
         text: recognizedText.text,
         subject: subject,
         date: new Date().toLocaleDateString(),
         timestamp: Date.now(),
       };
-      addScan(newScan);
+      await addScan(newScan);
     
       if (Platform.OS === 'android') {
         ToastAndroid.show('Scan saved successfully!', ToastAndroid.SHORT);

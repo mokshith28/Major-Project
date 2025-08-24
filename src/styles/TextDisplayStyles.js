@@ -46,7 +46,7 @@ export const TextDisplayStyles = StyleSheet.create({
     marginBottom: 16,
   },
   copyButton: {
-    backgroundColor: Colors.info,
+    backgroundColor: Colors.surfaceVariant,
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 16,
@@ -131,7 +131,7 @@ export const TextDisplayStyles = StyleSheet.create({
     borderRadius: 4,
   },
   activeDot: {
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.textSecondary,
   },
   inactiveDot: {
     backgroundColor: Colors.border,

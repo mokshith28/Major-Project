@@ -53,7 +53,7 @@ export const AppStyles = StyleSheet.create({
     justifyContent: 'center',
   },
   photoBtn: {
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.primaryLight,
     paddingVertical: 40,
     height: 200,
     width: '100%',
@@ -64,7 +64,7 @@ export const AppStyles = StyleSheet.create({
     borderWidth: 1,
   },
   galleryBtn: {
-    backgroundColor: Colors.buttonSecondary,
+    backgroundColor: Colors.secondaryLight,
     paddingVertical: 40,
     height: 200,
     width: '100%',
@@ -75,7 +75,7 @@ export const AppStyles = StyleSheet.create({
     borderWidth: 1,
   },
   buttonText: {
-    color: Colors.white,
+    color: Colors.text,
     fontSize: 18,
     fontWeight: '700',
     letterSpacing: 0.5,
