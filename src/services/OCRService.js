@@ -51,6 +51,27 @@ class OCRService {
       throw new Error(`${APP_ERRORS.OCR_FAILED}: ${error.message}`);
     }
   }
+
+  static async processMultipleImages(base64Images) {
+    if (!base64Images || !Array.isArray(base64Images) || base64Images.length === 0) {
+      throw new Error(APP_ERRORS.UNKNOWN_ERROR);
+    }
+
+    try {
+      const textResults = [];
+      
+      // Process each image and collect the text
+      for (let i = 0; i < base64Images.length; i++) {
+        const text = await this.processImage(base64Images[i]);
+        textResults.push(`${text}`);
+      }
+
+      // Combine all text results
+      return textResults.join('\n\n');
+    } catch (error) {
+      throw new Error(`Failed to process multiple images: ${error.message}`);
+    }
+  }
 }
 
 export default OCRService;

@@ -6,7 +6,7 @@ import {
   AppLoadingIndicator,
   CameraScreen,
   PermissionScreen,
-  ImageDisplay,
+  ImageGallery,
   ProcessingIndicator,
   TextDisplay
 } from '../components';
@@ -33,6 +33,7 @@ export default function AppContainer() {
 
   // Camera reference
   const [cameraRef, setCameraRef] = React.useState(null);
+  const [capturedImages, setCapturedImages] = React.useState([]);
 
   const handleTakePhoto = () => {
     setScreenState(SCREEN_STATES.CAMERA);
@@ -42,6 +43,7 @@ export default function AppContainer() {
     try {
       setProcessing(true);
       const result = await ImageService.takePicture(cameraRef);
+      setCapturedImages([result]); // Store as array for consistency
       setCapturedImage(result.uri);
       setScreenState(SCREEN_STATES.PROCESSING);
       
@@ -67,12 +69,28 @@ export default function AppContainer() {
         return; // User cancelled
       }
 
-      setCapturedImage(result.uri);
-      setScreenState(SCREEN_STATES.PROCESSING);
+      // Handle single or multiple images
+      if (Array.isArray(result)) {
+        // Multiple images selected
+        setCapturedImages(result); // Store all images
+        setCapturedImage(result[0].uri); // Show first image
+        setScreenState(SCREEN_STATES.PROCESSING);
+        
+        // Process all images and combine text
+        const base64Images = result.map(img => img.base64);
+        const combinedText = await OCRService.processMultipleImages(base64Images);
+        setRecognizedText({ text: combinedText, language: 'auto' });
+      } else {
+        // Single image selected (backward compatibility)
+        setCapturedImages([result]); // Store as array for consistency
+        setCapturedImage(result.uri);
+        setScreenState(SCREEN_STATES.PROCESSING);
+        
+        // Perform OCR on single image
+        const text = await OCRService.processImage(result.base64);
+        setRecognizedText({ text, language: 'auto' });
+      }
       
-      // Perform OCR
-      const text = await OCRService.processImage(result.base64);
-      setRecognizedText({ text, language: 'auto' });
       setScreenState(SCREEN_STATES.RESULTS);
     } catch (error) {
       Alert.alert('Error', error.message);
@@ -92,6 +110,11 @@ export default function AppContainer() {
       addScan(newScan);
       Alert.alert('Success', 'Scan saved successfully!');
     }
+  };
+
+  const handleReset = () => {
+    setCapturedImages([]);
+    resetApp();
   };
 
   const renderContent = () => {
@@ -115,7 +138,7 @@ export default function AppContainer() {
       case SCREEN_STATES.PROCESSING:
         return (
           <View style={HomeScreenStyles.centeredContainer}>
-            <ImageDisplay imageUri={capturedImage} />
+            <ImageGallery images={capturedImages} />
             <ProcessingIndicator />
           </View>
         );
@@ -123,12 +146,12 @@ export default function AppContainer() {
       case SCREEN_STATES.RESULTS:
         return (
           <View style={HomeScreenStyles.resultContainer}>
-            <ImageDisplay imageUri={capturedImage} />
+            <ImageGallery images={capturedImages} />
             <TextDisplay
               text={recognizedText?.text}
               language={recognizedText?.language}
               onSave={handleSave}
-              onNewPhoto={resetApp}
+              onNewPhoto={handleReset}
             />
           </View>
         );

@@ -14,9 +14,8 @@ export const TextDisplayStyles = StyleSheet.create({
     letterSpacing: -0.25,
   },
   capturedImage: {
-    width: '90%',
-    height: 555,
-    borderRadius: 16,
+    width: '100%',
+    height: '100%',
     resizeMode: 'cover',
     backgroundColor: Colors.surfaceVariant,
   },
@@ -100,5 +99,41 @@ export const TextDisplayStyles = StyleSheet.create({
     flex: 1,
     maxWidth: 140,
     borderWidth: 1,
+  },
+  // Image Gallery Styles
+  galleryCounter: {
+    fontSize: 14,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    marginTop: 8,
+    marginBottom: 8,
+    fontWeight: '500',
+  },
+  pagerView: {
+    height: 590,
+    width: '90%',
+  },
+  imagePageContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  paginationDots: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 12,
+    gap: 8,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  activeDot: {
+    backgroundColor: Colors.primary,
+  },
+  inactiveDot: {
+    backgroundColor: Colors.border,
   },
 });

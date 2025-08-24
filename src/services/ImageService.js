@@ -32,20 +32,21 @@ class ImageService {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
+        allowsMultipleSelection: true,
         quality: APP_CONFIG.IMAGE_QUALITY,
         base64: true,
+        selectionLimit: 10, // Allow up to 10 images
       });
 
-      if (result.canceled || !result.assets?.[0]) {
+      if (result.canceled || !result.assets?.length) {
         return null; // User cancelled
       }
 
-      const image = result.assets[0];
-      return {
+      // Return all selected images
+      return result.assets.map(image => ({
         uri: image.uri,
         base64: image.base64
-      };
+      }));
     } catch (error) {
       throw new Error(`Failed to pick image: ${error.message}`);
     }
