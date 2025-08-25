@@ -1,27 +1,27 @@
 import React, { useMemo } from 'react';
-import { SafeAreaView, Alert, Platform, ToastAndroid } from 'react-native';
-import { ScansNavigator } from '../components';
-import { useAppStore } from '../store/AppStore';
+import { SafeAreaView } from 'react-native';
+import { useRouter } from 'expo-router';
+import { SubjectsScreen } from '../../src/components';
+import { useAppStore } from '../../src/store/AppStore';
 
-export default function ScansContainer() {
-  const { savedScans, subjects, deleteScan } = useAppStore();
-
-  // Remove the local state and useEffect since subjects are now in global state
+export default function ScansIndex() {
+  const { savedScans, subjects } = useAppStore();
+  const router = useRouter();
 
   // Group scans by subject
   const groupedScans = useMemo(() => {
     const groups = {};
     savedScans.forEach(scan => {
-      const subject = scan.subject || (availableSubjects.length > 0 ? availableSubjects[0] : 'Mathematics');
+      const subject = scan.subject || (subjects.length > 0 ? subjects[0] : 'Mathematics');
       if (!groups[subject]) {
         groups[subject] = [];
       }
       groups[subject].push(scan);
     });
     return groups;
-  }, [savedScans]);
+  }, [savedScans, subjects]);
 
-  // Create subjects array with scan counts (including subjects with 0 scans)
+  // Create subjects array with scan counts
   const subjectsWithCounts = useMemo(() => {
     const subjectList = [];
     
@@ -48,31 +48,16 @@ export default function ScansContainer() {
     return subjectList.sort((a, b) => a.name.localeCompare(b.name));
   }, [groupedScans, subjects]);
 
-  const handleScanPress = (scan) => {
-    Alert.alert(
-      'Scan Details',
-      `Text: ${scan.text}\n\nDate: ${scan.date}`,
-      [{ text: 'OK' }]
-    );
-  };
-
-  const handleDeleteScan = async (scan) => {
-    await deleteScan(scan);
-    // Show success message
-    if (Platform.OS === 'android') {
-      ToastAndroid.show('Scan deleted successfully!', ToastAndroid.SHORT);
-    } else {
-      Alert.alert('✅ Success!', 'Scan deleted successfully!');
-    }
+  const handleSubjectPress = (subject) => {
+    // Navigate to the subject's scans using Expo Router
+    router.push(`/scans/${encodeURIComponent(subject.name)}`);
   };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <ScansNavigator
-        key={`scans-${savedScans.length}`} // Force re-render when scan count changes
+      <SubjectsScreen
         subjects={subjectsWithCounts}
-        onScanPress={handleScanPress}
-        onDeleteScan={handleDeleteScan}
+        onSubjectPress={handleSubjectPress}
       />
     </SafeAreaView>
   );
