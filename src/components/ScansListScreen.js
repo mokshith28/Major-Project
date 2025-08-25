@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, FlatList, TouchableOpacity, Alert } from 'react-native';
+import ExportButton from './ExportButton';
 import YourScansScreenStyles from '../styles/YourScansScreenStyles';
 
 const ScansListScreen = ({ scans, subject, onScanPress, onBackPress, onDeleteScan }) => {
@@ -38,21 +39,34 @@ const ScansListScreen = ({ scans, subject, onScanPress, onBackPress, onDeleteSca
           {item.text}
         </Text>
       </TouchableOpacity>
-      {onDeleteScan && (
-        <TouchableOpacity
-          style={YourScansScreenStyles.deleteButton}
-          onPress={() => handleDeleteScan(item, index)}
-        >
-          <Text style={YourScansScreenStyles.deleteButtonText}>🗑️</Text>
-        </TouchableOpacity>
-      )}
+      <View style={YourScansScreenStyles.scanActionButtons}>
+        {onDeleteScan && (
+          <TouchableOpacity
+            style={YourScansScreenStyles.deleteButton}
+            onPress={() => handleDeleteScan(item, index)}
+          >
+            <Text style={YourScansScreenStyles.deleteButtonText}>🗑️</Text>
+          </TouchableOpacity>
+        )}
+        <ExportButton
+          scan={item}
+          index={index}
+          onExportComplete={() => {
+            // Optional: Add any success handling here
+          }}
+          onExportError={(error) => {
+            // Optional: Add any error handling here
+            console.error('Export failed:', error);
+          }}
+        />
+      </View>
     </View>
   );
 
   return (
     <View style={YourScansScreenStyles.container}>
       <View style={YourScansScreenStyles.header}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={YourScansScreenStyles.backButton}
           onPress={onBackPress}
         >

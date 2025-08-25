@@ -1,7 +1,7 @@
 import React from 'react';
-import { 
-  View, 
-  Text, 
+import {
+  View,
+  Text,
   TouchableOpacity
 } from 'react-native';
 import { TextDisplayStyles } from '../styles/TextDisplayStyles';
@@ -29,7 +29,7 @@ const TextDisplay = ({ text, onSave, onNewPhoto }) => {
       <View style={TextDisplayStyles.textBox}>
         <Text style={TextDisplayStyles.recognizedText}>{text}</Text>
       </View>
-      
+
       <SubjectActions onSave={onSave} onNewPhoto={onNewPhoto} />
     </View>
   );

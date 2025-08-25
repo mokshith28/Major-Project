@@ -9,4 +9,6 @@ export { default as SubjectsScreen } from './SubjectsScreen';
 export { default as TextDisplay } from './TextDisplay';
 export { default as CameraScreen } from './CameraScreen';
 export { default as PermissionScreen } from './PermissionScreen';
+export { default as ExportButton } from './ExportButton';
+export { default as MultiExportButton } from './MultiExportButton';
 export { TabIcon } from './TabIcon';

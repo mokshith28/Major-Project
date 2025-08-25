@@ -101,7 +101,7 @@ export const YourScansScreenStyles = StyleSheet.create({
     lineHeight: 24,
     fontWeight: '400',
   },
-  
+
   // Subject-related styles
   subjectsList: {
     flex: 1,
@@ -173,13 +173,32 @@ export const YourScansScreenStyles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.shadow,
     borderRadius: 15,
-    marginLeft: 12,
     justifyContent: 'center',
     alignItems: 'center',
     minWidth: 60,
-    height: 185,
+    flex: 1,
   },
   deleteButtonText: {
+    fontSize: 18,
+    color: 'white',
+  },
+  scanActionButtons: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    marginLeft: 12,
+    gap: 12,
+  },
+  exportButton: {
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.shadow,
+    borderRadius: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    minWidth: 60,
+    flex: 1,
+  },
+  exportButtonText: {
     fontSize: 18,
     color: 'white',
   },
