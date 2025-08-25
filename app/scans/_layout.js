@@ -9,6 +9,13 @@ export default function ScansLayout() {
     >
       <Stack.Screen name="index" />
       <Stack.Screen name="[subject]" />
+      <Stack.Screen 
+        name="edit/[scanId]" 
+        options={{
+          presentation: 'modal',
+          gestureEnabled: true,
+        }}
+      />
     </Stack>
   );
 }

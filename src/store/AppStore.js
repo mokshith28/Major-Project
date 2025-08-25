@@ -1,7 +1,7 @@
 import { createContext, useContext, useReducer, useEffect, useMemo } from 'react';
 import { usePermissions } from '../hooks/usePermissions';
 import { SCREEN_STATES } from '../constants';
-import { loadScansFromStorage, addScanToStorage, removeScanFromStorage } from '../utils';
+import { loadScansFromStorage, addScanToStorage, removeScanFromStorage, updateScanInStorage } from '../utils';
 import { getStoredSubjects, addNewSubject, removeSubject } from '../utils';
 
 // Initial state
@@ -23,6 +23,7 @@ const ACTIONS = {
   SET_PROCESSING: 'SET_PROCESSING',
   ADD_SCAN: 'ADD_SCAN',
   DELETE_SCAN: 'DELETE_SCAN',
+  UPDATE_SCAN: 'UPDATE_SCAN',
   LOAD_SCANS: 'LOAD_SCANS',
   LOAD_SUBJECTS: 'LOAD_SUBJECTS',
   ADD_SUBJECT: 'ADD_SUBJECT',
@@ -51,6 +52,13 @@ function appReducer(state, action) {
       return {
         ...state,
         savedScans: state.savedScans.filter(scan => scan.timestamp !== action.payload.timestamp)
+      };
+    case ACTIONS.UPDATE_SCAN:
+      return {
+        ...state,
+        savedScans: state.savedScans.map(scan => 
+          scan.timestamp === action.payload.oldScan.timestamp ? action.payload.updatedScan : scan
+        )
       };
     case ACTIONS.LOAD_SCANS:
       return {
@@ -153,6 +161,10 @@ export const AppProvider = ({ children }) => {
     deleteScan: async (scan) => {
       dispatch({ type: ACTIONS.DELETE_SCAN, payload: scan });
       await removeScanFromStorage(scan);
+    },
+    updateScan: async (oldScan, updatedScan) => {
+      dispatch({ type: ACTIONS.UPDATE_SCAN, payload: { oldScan, updatedScan } });
+      await updateScanInStorage(oldScan, updatedScan);
     },
     loadScans: async () => {
       const scans = await loadScansFromStorage();

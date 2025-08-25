@@ -50,3 +50,17 @@ export const removeScanFromStorage = async (scanToRemove) => {
     return false;
   }
 };
+
+// Update a scan in storage
+export const updateScanInStorage = async (oldScan, updatedScan) => {
+  try {
+    const existingScans = await loadScansFromStorage();
+    const updatedScans = existingScans.map(scan => 
+      scan.timestamp === oldScan.timestamp ? updatedScan : scan
+    );
+    return await saveScansToStorage(updatedScans);
+  } catch (error) {
+    console.error('Error updating scan in storage:', error);
+    return false;
+  }
+};

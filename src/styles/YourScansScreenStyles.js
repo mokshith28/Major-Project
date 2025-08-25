@@ -1,14 +1,21 @@
 import { StyleSheet } from 'react-native';
 import { Colors } from '../styles/Colors';
 
-const YourScansScreenStyles = StyleSheet.create({
+export const YourScansScreenStyles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: Colors.background,
+  },
+  statusBar: {
+    backgroundColor: Colors.background,
+    barStyle: 'dark-content',
+  },
   container: {
     flex: 1,
     backgroundColor: Colors.background,
   },
   header: {
     paddingHorizontal: 24,
-    paddingTop: 60,
     paddingBottom: 20,
   },
   headerTitle: {
@@ -106,7 +113,7 @@ const YourScansScreenStyles = StyleSheet.create({
     marginBottom: 16,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.borderDark,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',

@@ -1,12 +1,15 @@
 import React, { useMemo } from 'react';
-import { SafeAreaView } from 'react-native';
+import { View, StatusBar } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { SubjectsScreen } from '../../src/components';
 import { useAppStore } from '../../src/store/AppStore';
+import { YourScansScreenStyles } from '../../src/styles';
 
 export default function ScansIndex() {
   const { savedScans, subjects } = useAppStore();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   // Group scans by subject
   const groupedScans = useMemo(() => {
@@ -54,11 +57,12 @@ export default function ScansIndex() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <View style={[YourScansScreenStyles.safeArea, { paddingTop: insets.top }]}>
+      <StatusBar barStyle="dark-content" backgroundColor={YourScansScreenStyles.statusBar.backgroundColor} />
       <SubjectsScreen
         subjects={subjectsWithCounts}
         onSubjectPress={handleSubjectPress}
       />
-    </SafeAreaView>
+    </View>
   );
 }

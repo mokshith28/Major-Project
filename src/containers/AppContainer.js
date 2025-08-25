@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, ScrollView, Platform, ToastAndroid, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, ScrollView, Platform, ToastAndroid, Alert, StatusBar } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   ActionButtons,
   AppLoadingIndicator,
@@ -17,6 +17,7 @@ import { HomeScreenStyles } from '../styles';
 import { SCREEN_STATES } from '../constants';
 
 export default function AppContainer() {
+  const insets = useSafeAreaInsets();
   const {
     screenState,
     capturedImage,
@@ -115,6 +116,7 @@ export default function AppContainer() {
       } else {
         Alert.alert('✅ Success!', 'Scan saved successfully!');
       }
+      setScreenState(SCREEN_STATES.HOME);
     }
   };
 
@@ -173,7 +175,8 @@ export default function AppContainer() {
   };
 
   return (
-    <SafeAreaView style={HomeScreenStyles.container}>
+    <View style={[HomeScreenStyles.safeArea, { paddingTop: insets.top }]}>
+      <StatusBar barStyle="dark-content" backgroundColor={HomeScreenStyles.statusBar.backgroundColor} />
       <ScrollView
         style={HomeScreenStyles.content}
         contentContainerStyle={HomeScreenStyles.scrollContent}
@@ -181,6 +184,6 @@ export default function AppContainer() {
       >
         {renderContent()}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }

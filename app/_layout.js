@@ -1,4 +1,4 @@
-import { Tabs } from 'expo-router';
+import { Tabs, usePathname } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Colors, TabBarStyles } from '../src/styles';
 import { TabIcon } from '../src/components';
@@ -8,6 +8,8 @@ import { SCREEN_STATES } from '../src/constants';
 
 function TabsLayout() {
   const { screenState } = useAppStore();
+  
+  // Hide tab bar for camera state or nested routes
   const hideTabBar = screenState === SCREEN_STATES.CAMERA;
 
   return (

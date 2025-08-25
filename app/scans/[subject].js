@@ -1,13 +1,16 @@
 import React, { useMemo } from 'react';
-import { SafeAreaView, Alert, Platform, ToastAndroid } from 'react-native';
+import { View, Alert, Platform, ToastAndroid, StatusBar } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ScansListScreen } from '../../src/components';
 import { useAppStore } from '../../src/store/AppStore';
+import { YourScansScreenStyles } from '../../src/styles';
 
 export default function SubjectScans() {
   const { subject: subjectName } = useLocalSearchParams();
   const { savedScans, deleteScan } = useAppStore();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   // Decode the subject name from URL
   const decodedSubjectName = decodeURIComponent(subjectName);
@@ -25,11 +28,8 @@ export default function SubjectScans() {
   };
 
   const handleScanPress = (scan) => {
-    Alert.alert(
-      'Scan Details',
-      `Text: ${scan.text}\n\nDate: ${scan.date}`,
-      [{ text: 'OK' }]
-    );
+    // Navigate to edit scan page using scan timestamp as ID
+    router.push(`/scans/edit/${scan.timestamp}`);
   };
 
   const handleBackPress = () => {
@@ -47,7 +47,8 @@ export default function SubjectScans() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <View style={[YourScansScreenStyles.safeArea, { paddingTop: insets.top }]}>
+      <StatusBar barStyle="dark-content" backgroundColor={YourScansScreenStyles.statusBar.backgroundColor} />
       <ScansListScreen
         scans={subjectScans}
         subject={subjectObj}
@@ -55,6 +56,6 @@ export default function SubjectScans() {
         onBackPress={handleBackPress}
         onDeleteScan={handleDeleteScan}
       />
-    </SafeAreaView>
+    </View>
   );
 }
