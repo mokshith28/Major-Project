@@ -6,7 +6,6 @@ export default function PermissionsScreen() {
   const { requestPermissions, hasPermissions } = useAppStore();
 
   const handleRequestPermissions = async () => {
-    console.log("Inside premission");
     await requestPermissions();
     // After permissions are granted, navigate back to home;
     AppRouter.resetToHome();

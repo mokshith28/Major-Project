@@ -8,7 +8,7 @@ export default function LoginScreen() {
 
   // If already authenticated, redirect to main app
   if (isAuthenticated) {
-    return <Redirect href="/homes" />;
+    return <Redirect href="/home" />;
   }
 
   const handleSignInSuccess = (user) => {
