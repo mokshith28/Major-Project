@@ -2,9 +2,9 @@ import React, { useMemo } from 'react';
 import { View, StatusBar } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { SubjectsScreen } from '../../src/components';
-import { useAppStore } from '../../src/store/AppStore';
-import { YourScansScreenStyles } from '../../src/styles';
+import { SubjectsScreen } from '../../../src/components';
+import { useAppStore } from '../../../src/store/AppStore';
+import { YourScansScreenStyles } from '../../../src/styles';
 
 export default function ScansIndex() {
   const { savedScans, subjects } = useAppStore();
@@ -27,7 +27,7 @@ export default function ScansIndex() {
   // Create subjects array with scan counts
   const subjectsWithCounts = useMemo(() => {
     const subjectList = [];
-    
+
     // Add all available subjects with their scan counts
     subjects.forEach(subject => {
       subjectList.push({

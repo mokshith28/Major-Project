@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  TouchableOpacity, 
-  ScrollView, 
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
   Alert,
   Platform,
   ToastAndroid,
@@ -13,8 +13,8 @@ import {
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useAppStore } from '../../../src/store/AppStore';
-import { copyToClipboard } from '../../../src/utils';
+import { useAppStore } from '../../../../src/store/AppStore';
+import { copyToClipboard } from '../../../../src/utils';
 import EditScanStyles from './EditScanStyles';
 
 export default function EditScan() {
@@ -25,7 +25,7 @@ export default function EditScan() {
 
   // Find the scan by timestamp (using as ID)
   const scan = savedScans.find(s => s.timestamp.toString() === scanId);
-  
+
   const [editedText, setEditedText] = useState(scan?.text || '');
   const [isModified, setIsModified] = useState(false);
 
@@ -41,7 +41,7 @@ export default function EditScan() {
       <View style={[EditScanStyles.notFoundContainer, { paddingTop: insets.top }]}>
         <StatusBar barStyle="dark-content" backgroundColor={EditScanStyles.statusBar.backgroundColor} />
         <Text style={EditScanStyles.notFoundText}>Scan not found</Text>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={EditScanStyles.notFoundButton}
           onPress={() => router.back()}
         >
@@ -72,17 +72,17 @@ export default function EditScan() {
       text: editedText.trim(),
       date: new Date().toLocaleDateString(), // Update date to show it was modified
     };
-    
+
     // Update scan in place to avoid "scan not found" flash
     await updateScan(scan, updatedScan);
-    
+
     // Show success message
     if (Platform.OS === 'android') {
       ToastAndroid.show('Scan updated successfully!', ToastAndroid.SHORT);
     } else {
       Alert.alert('✅ Success!', 'Scan updated successfully!');
     }
-    
+
     router.back();
   };
 
@@ -93,8 +93,8 @@ export default function EditScan() {
         'You have unsaved changes. Are you sure you want to discard them?',
         [
           { text: 'Cancel', style: 'cancel' },
-          { 
-            text: 'Discard', 
+          {
+            text: 'Discard',
             style: 'destructive',
             onPress: () => router.back()
           }
@@ -107,15 +107,15 @@ export default function EditScan() {
 
   return (
     <View style={[EditScanStyles.safeArea, { paddingTop: insets.top }]}>
-      <StatusBar  style={EditScanStyles.statusBar} />
-      <ScrollView 
-        style={EditScanStyles.container} 
+      <StatusBar style={EditScanStyles.statusBar} />
+      <ScrollView
+        style={EditScanStyles.container}
         bounces={false}
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
         <View style={EditScanStyles.header}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={EditScanStyles.backButton}
             onPress={handleDiscard}
             activeOpacity={0.8}
@@ -146,7 +146,7 @@ export default function EditScan() {
               </TouchableOpacity>
             </View>
           </View>
-          
+
           <TextInput
             style={EditScanStyles.textInput}
             value={editedText}
@@ -168,7 +168,7 @@ export default function EditScan() {
               Cancel
             </Text>
           </TouchableOpacity>
-          
+
           <TouchableOpacity
             style={[
               EditScanStyles.saveButton,

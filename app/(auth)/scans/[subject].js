@@ -2,9 +2,9 @@ import React, { useMemo } from 'react';
 import { View, Alert, Platform, ToastAndroid, StatusBar } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ScansListScreen } from '../../src/components';
-import { useAppStore } from '../../src/store/AppStore';
-import { YourScansScreenStyles } from '../../src/styles';
+import { ScansListScreen } from '../../../src/components';
+import { useAppStore } from '../../../src/store/AppStore';
+import { YourScansScreenStyles } from '../../../src/styles';
 
 export default function SubjectScans() {
   const { subject: subjectName } = useLocalSearchParams();

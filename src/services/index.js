@@ -2,3 +2,4 @@
 export { default as OCRService } from './OCRService';
 export { default as ImageService } from './ImageService';
 export { default as ExportService } from './ExportService';
+export { default as FirebaseService } from './FirebaseService';

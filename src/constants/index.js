@@ -1,13 +1,4 @@
 // Application constants and enums
-export const SCREEN_STATES = {
-  LOADING: 'loading',
-  PERMISSIONS_REQUIRED: 'permissions_required',
-  HOME: 'home',
-  CAMERA: 'camera',
-  PROCESSING: 'processing',
-  RESULTS: 'results',
-};
-
 export const PERMISSION_STATUS = {
   GRANTED: 'granted',
   DENIED: 'denied',

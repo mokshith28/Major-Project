@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { Colors } from '../../../src/styles/Colors';
+import { Colors } from '../../../../src/styles/Colors';
 
 const EditScanStyles = StyleSheet.create({
   safeArea: {

@@ -11,4 +11,7 @@ export { default as CameraScreen } from './CameraScreen';
 export { default as PermissionScreen } from './PermissionScreen';
 export { default as ExportButton } from './ExportButton';
 export { default as MultiExportButton } from './MultiExportButton';
+export { default as SearchBar } from './SearchBar';
+export { default as SyncStatusIndicator } from './SyncStatusIndicator';
+export { default as EmailSignIn } from './EmailSignIn';
 export { TabIcon } from './TabIcon';

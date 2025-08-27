@@ -15,13 +15,23 @@ import {
 import YourScansScreenStyles from '../styles/YourScansScreenStyles';
 import { SubjectActionsStyles } from '../styles/SubjectActionsStyles';
 import { useAppStore } from '../store/AppStore';
+import SearchBar from './SearchBar';
+import SyncStatusIndicator from './SyncStatusIndicator';
 
 const SubjectsScreen = ({ subjects, onSubjectPress }) => {
-  const { addSubject, removeSubject, savedScans, deleteScan } = useAppStore();
+  const { addSubject, removeSubject, savedScans, deleteScan, signOut, isFirebaseReady } = useAppStore();
   const [showManageModal, setShowManageModal] = useState(false);
   const [newSubjectText, setNewSubjectText] = useState('');
+  const [searchText, setSearchText] = useState('');
 
   const hasAnyScans = subjects.some(subject => subject.count > 0);
+
+  // Filter scans by search text
+  const filteredScans = searchText.trim()
+    ? savedScans.filter(scan =>
+      scan.text && scan.text.toLowerCase().includes(searchText.trim().toLowerCase())
+    )
+    : [];
 
   // Helper function to show toast messages
   const showToast = (message) => {
@@ -130,33 +140,92 @@ const SubjectsScreen = ({ subjects, onSubjectPress }) => {
       <View style={YourScansScreenStyles.header}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <Text style={YourScansScreenStyles.headerTitle}>Your Subjects</Text>
-          <TouchableOpacity onPress={() => setShowManageModal(true)} style={{ marginLeft: 12, padding: 4 }}>
-            <Text style={{ fontSize: 22 }}>✏️</Text>
-          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <TouchableOpacity onPress={() => setShowManageModal(true)} style={{ marginLeft: 12, padding: 4 }}>
+              <Text style={{ fontSize: 22 }}>✏️</Text>
+            </TouchableOpacity>
+            {isFirebaseReady && (
+              <TouchableOpacity
+                onPress={() => {
+                  Alert.alert(
+                    'Sign Out',
+                    'Are you sure you want to sign out?',
+                    [
+                      { text: 'Cancel', style: 'cancel' },
+                      { text: 'Sign Out', style: 'destructive', onPress: signOut }
+                    ]
+                  );
+                }}
+                style={{ marginLeft: 12, padding: 4 }}
+              >
+                <Text style={{ fontSize: 22 }}>🚪</Text>
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
         <Text style={YourScansScreenStyles.headerSubtitle}>
           {hasAnyScans
             ? `${subjects.filter(s => s.count > 0).length} subjects with scans`
             : "Organize your scans by subject"}
         </Text>
+        <SyncStatusIndicator />
       </View>
-
-      {subjects.length === 0 ? (
-        <View style={YourScansScreenStyles.emptyState}>
-          <Text style={YourScansScreenStyles.emptyIcon}>📚</Text>
-          <Text style={YourScansScreenStyles.emptyTitle}>No subjects yet</Text>
-          <Text style={YourScansScreenStyles.emptyMessage}>
-            Go to the Home tab to capture and organize your scans
-          </Text>
-        </View>
+      <SearchBar
+        value={searchText}
+        onChangeText={setSearchText}
+        placeholder="Search all notes..."
+      />
+      {searchText.trim() ? (
+        filteredScans.length === 0 ? (
+          <View style={YourScansScreenStyles.emptyState}>
+            <Text style={YourScansScreenStyles.emptyIcon}>🔍</Text>
+            <Text style={YourScansScreenStyles.emptyTitle}>No results found</Text>
+            <Text style={YourScansScreenStyles.emptyMessage}>
+              No notes match your search.
+            </Text>
+          </View>
+        ) : (
+          <FlatList
+            data={filteredScans}
+            renderItem={({ item, index }) => (
+              <View style={YourScansScreenStyles.scanItemContainer}>
+                <View style={YourScansScreenStyles.scanItem}>
+                  <View style={YourScansScreenStyles.scanHeader}>
+                    <Text style={YourScansScreenStyles.scanTitle}>Scan</Text>
+                    <Text style={YourScansScreenStyles.scanDate}>{item.date}</Text>
+                  </View>
+                  {item.subject && (
+                    <Text style={YourScansScreenStyles.scanSubject}>📚 {item.subject}</Text>
+                  )}
+                  <Text style={YourScansScreenStyles.scanPreview} numberOfLines={3}>
+                    {item.text}
+                  </Text>
+                </View>
+              </View>
+            )}
+            keyExtractor={(item, idx) => item.timestamp?.toString() || idx.toString()}
+            style={YourScansScreenStyles.scansList}
+            showsVerticalScrollIndicator={false}
+          />
+        )
       ) : (
-        <FlatList
-          data={subjects}
-          renderItem={renderSubjectItem}
-          keyExtractor={(item) => item.name}
-          style={YourScansScreenStyles.subjectsList}
-          showsVerticalScrollIndicator={false}
-        />
+        subjects.length === 0 ? (
+          <View style={YourScansScreenStyles.emptyState}>
+            <Text style={YourScansScreenStyles.emptyIcon}>📚</Text>
+            <Text style={YourScansScreenStyles.emptyTitle}>No subjects yet</Text>
+            <Text style={YourScansScreenStyles.emptyMessage}>
+              Go to the Home tab to capture and organize your scans
+            </Text>
+          </View>
+        ) : (
+          <FlatList
+            data={subjects}
+            renderItem={renderSubjectItem}
+            keyExtractor={(item) => item.name}
+            style={YourScansScreenStyles.subjectsList}
+            showsVerticalScrollIndicator={false}
+          />
+        )
       )}
 
       {/* Subject Management Modal */}
