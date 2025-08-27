@@ -73,6 +73,8 @@ export default function EditScan() {
       date: new Date().toLocaleDateString(), // Update date to show it was modified
     };
 
+    router.back();
+
     // Update scan in place to avoid "scan not found" flash
     await updateScan(scan, updatedScan);
 
@@ -82,8 +84,6 @@ export default function EditScan() {
     } else {
       Alert.alert('✅ Success!', 'Scan updated successfully!');
     }
-
-    router.back();
   };
 
   const handleDiscard = () => {

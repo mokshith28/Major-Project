@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, FlatList, TouchableOpacity, Alert } from 'react-native';
 import ExportButton from './ExportButton';
 import YourScansScreenStyles from '../styles/YourScansScreenStyles';
+import SyncStatusIndicator from './SyncStatusIndicator';
 
 const ScansListScreen = ({ scans, subject, onScanPress, onBackPress, onDeleteScan }) => {
   const handleDeleteScan = (scan, index) => {
@@ -76,6 +77,7 @@ const ScansListScreen = ({ scans, subject, onScanPress, onBackPress, onDeleteSca
         <Text style={YourScansScreenStyles.headerSubtitle}>
           {scans.length} {scans.length === 1 ? 'scan' : 'scans'}
         </Text>
+        <SyncStatusIndicator />
       </View>
 
       {scans.length === 0 ? (

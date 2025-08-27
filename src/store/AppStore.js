@@ -1,8 +1,7 @@
 import { createContext, useContext, useReducer, useEffect, useMemo } from 'react';
 import { usePermissions } from '../hooks/usePermissions';
-import { loadScansFromStorage, addScanToStorage, removeScanFromStorage, updateScanInStorage } from '../utils';
-import { getStoredSubjects, addNewSubject, removeSubject } from '../utils';
 import FirebaseService from '../services/FirebaseService';
+import NetInfo from '@react-native-community/netinfo';
 
 // Initial state
 const initialState = {
@@ -14,8 +13,10 @@ const initialState = {
   subjects: [], // Add subjects to global state
   error: null,
   isAuthenticated: false, // Add authentication state
+  user: null,
   isFirebaseReady: false,
   isOffline: false,
+  isSyncing: false,
 };
 
 // Action types
@@ -35,7 +36,9 @@ const ACTIONS = {
   RESET_APP: 'RESET_APP',
   SET_FIREBASE_READY: 'SET_FIREBASE_READY',
   SET_OFFLINE: 'SET_OFFLINE',
-  SET_AUTHENTICATED: 'SET_AUTHENTICATED',
+  SIGN_IN: 'SIGN_IN',
+  SIGN_OUT: 'SIGN_OUT',
+  SET_SYNCING: 'SET_SYNCING',
 };
 
 // Reducer
@@ -92,8 +95,10 @@ function appReducer(state, action) {
       return { ...state, isFirebaseReady: action.payload };
     case ACTIONS.SET_OFFLINE:
       return { ...state, isOffline: action.payload };
-    case ACTIONS.SET_AUTHENTICATED:
-      return { ...state, isAuthenticated: action.payload };
+    case ACTIONS.SIGN_IN:
+      return { ...state, isAuthenticated: true, user: action.payload };
+    case ACTIONS.SIGN_OUT:
+      return { ...state, isAuthenticated: false, user: null };
     case ACTIONS.RESET_APP:
       return {
         ...state,
@@ -101,6 +106,8 @@ function appReducer(state, action) {
         recognizedText: null,
         error: null,
       };
+    case ACTIONS.SET_SYNCING:
+      return { ...state, isSyncing: action.payload };
     default:
       return state;
   }
@@ -124,13 +131,15 @@ export const AppProvider = ({ children }) => {
   // Initialize app and check permissions
   useEffect(() => {
     const initializeApp = async () => {
+      dispatch({ type: ACTIONS.SET_LOADING, payload: true });
       try {
+        console.log('Initialized app');
         // Load local data
-        console.log('Loading local data...');
-        const scans = await loadScansFromStorage();
-        const subjects = await getStoredSubjects();
-        dispatch({ type: ACTIONS.LOAD_SCANS, payload: scans });
-        dispatch({ type: ACTIONS.LOAD_SUBJECTS, payload: subjects });
+        // console.log('Loading local data...');
+        // const scans = await loadScansFromStorage();
+        // const subjects = await getStoredSubjects();
+        // dispatch({ type: ACTIONS.LOAD_SCANS, payload: scans });
+        // dispatch({ type: ACTIONS.LOAD_SUBJECTS, payload: subjects });
       } catch (error) {
         console.error('Error loading local data:', error);
       } finally {
@@ -142,124 +151,171 @@ export const AppProvider = ({ children }) => {
     initializeApp();
   }, []);
 
+  // Initialize Firebase
+  useEffect(() => {
+    const setupFirebase = async () => {
+      const ready = await FirebaseService.initialize();
+      dispatch({ type: ACTIONS.SET_FIREBASE_READY, payload: ready });
+    };
+    setupFirebase();
+  }, []);
+
+  // Listen for network changes
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener(async (netState) => {
+      // const wasOffline = state.isOffline;
+      const isNowOnline = netState.isConnected;
+
+      dispatch({ type: ACTIONS.SET_OFFLINE, payload: !isNowOnline });
+
+      // If we were offline and now online, try syncing
+      // if (wasOffline && isNowOnline && state.isFirebaseReady) {
+      //   console.log("🌐 Back online → syncing local data...");
+      //   await actions.syncLocal(state.savedScans, state.subjects);
+      // }
+    });
+
+    return () => unsubscribe();
+  }, [state.isOffline, state.isFirebaseReady, state.savedScans, state.subjects]);
+
+  // Subscribe to real-time scans + subjects
+  useEffect(() => {
+    if (state.isFirebaseReady && state.user) {
+      console.log("📡 Subscribing to scans + subjects in Firestore");
+
+      const unsubScans = FirebaseService.subscribeToScans((scans) => {
+        dispatch({ type: ACTIONS.LOAD_SCANS, payload: scans });
+      }, state.user.uid);
+
+      const unsubSubjects = FirebaseService.subscribeToSubjects((subjects) => {
+        dispatch({ type: ACTIONS.LOAD_SUBJECTS, payload: subjects });
+      }, state.user.uid);
+
+      // cleanup when user signs out or deps change
+      return () => {
+        console.log("🛑 Unsubscribing from scans + subjects");
+        unsubScans?.();
+        unsubSubjects?.();
+      };
+    }
+  }, [state.isFirebaseReady, state.user?.uid]);
+
+
+
   // Actions
   const actions = useMemo(() => ({
     setCapturedImage: (image) => dispatch({ type: ACTIONS.SET_CAPTURED_IMAGE, payload: image }),
     setRecognizedText: (text) => dispatch({ type: ACTIONS.SET_RECOGNIZED_TEXT, payload: text }),
     setProcessing: (processing) => dispatch({ type: ACTIONS.SET_PROCESSING, payload: processing }),
     addScan: async (scan) => {
+      dispatch({ type: ACTIONS.SET_SYNCING, payload: true });
       try {
         // Add to local storage first (for offline support)
-        await addScanToStorage(scan);
+        // await addScanToStorage(scan);
 
         // Try to add to Firebase if online
         if (state.isFirebaseReady && !state.isOffline) {
-          const firebaseId = await FirebaseService.addScan(scan);
+          const firebaseId = await FirebaseService.addScan(scan, state.user.uid);
           scan.firebaseId = firebaseId;
         }
 
-        dispatch({ type: ACTIONS.ADD_SCAN, payload: scan });
+        // dispatch({ type: ACTIONS.ADD_SCAN, payload: scan });
       } catch (error) {
         console.error('Error adding scan:', error);
-        // Still add locally even if Firebase fails
-        dispatch({ type: ACTIONS.ADD_SCAN, payload: scan });
-        await addScanToStorage(scan);
+      } finally {
+        dispatch({ type: ACTIONS.SET_SYNCING, payload: false });
       }
     },
     deleteScan: async (scan) => {
+      dispatch({ type: ACTIONS.SET_SYNCING, payload: true });
       try {
         // Remove from local storage
-        await removeScanFromStorage(scan);
+        // await removeScanFromStorage(scan);
 
         // Try to remove from Firebase if online
         if (state.isFirebaseReady && !state.isOffline && scan.firebaseId) {
-          await FirebaseService.deleteScan(scan.firebaseId);
+          await FirebaseService.deleteScan(scan.firebaseId, state.user.uid);
         }
 
-        dispatch({ type: ACTIONS.DELETE_SCAN, payload: scan });
+        // dispatch({ type: ACTIONS.DELETE_SCAN, payload: scan });
       } catch (error) {
         console.error('Error deleting scan:', error);
-        // Still remove locally even if Firebase fails
-        dispatch({ type: ACTIONS.DELETE_SCAN, payload: scan });
-        await removeScanFromStorage(scan);
+      } finally {
+        dispatch({ type: ACTIONS.SET_SYNCING, payload: false });
       }
     },
     updateScan: async (oldScan, updatedScan) => {
+      dispatch({ type: ACTIONS.SET_SYNCING, payload: true });
       try {
         // Update local storage
-        await updateScanInStorage(oldScan, updatedScan);
+        // await updateScanInStorage(oldScan, updatedScan);
 
         // Try to update Firebase if online
         if (state.isFirebaseReady && !state.isOffline && oldScan.firebaseId) {
-          await FirebaseService.updateScan(oldScan.firebaseId, updatedScan);
+          await FirebaseService.updateScan(oldScan.firebaseId, updatedScan, state.user.uid);
           updatedScan.firebaseId = oldScan.firebaseId;
         }
 
-        dispatch({ type: ACTIONS.UPDATE_SCAN, payload: { oldScan, updatedScan } });
+        // dispatch({ type: ACTIONS.UPDATE_SCAN, payload: { oldScan, updatedScan } });
       } catch (error) {
         console.error('Error updating scan:', error);
-        // Still update locally even if Firebase fails
-        dispatch({ type: ACTIONS.UPDATE_SCAN, payload: { oldScan, updatedScan } });
-        await updateScanInStorage(oldScan, updatedScan);
+      } finally {
+        dispatch({ type: ACTIONS.SET_SYNCING, payload: false });
       }
     },
     loadScans: async () => {
       if (state.isFirebaseReady && !state.isOffline) {
-        const scans = await FirebaseService.getScans();
+        const scans = await FirebaseService.getScans(state.user.uid);
         dispatch({ type: ACTIONS.LOAD_SCANS, payload: scans });
       } else {
-        const scans = await loadScansFromStorage();
-        dispatch({ type: ACTIONS.LOAD_SCANS, payload: scans });
+        // const scans = await loadScansFromStorage();
+        // dispatch({ type: ACTIONS.LOAD_SCANS, payload: scans });
       }
     },
     addSubject: async (subjectName) => {
+      dispatch({ type: ACTIONS.SET_SYNCING, payload: true });
       try {
         // Add to local storage first
-        const result = await addNewSubject(subjectName, state.subjects);
-        if (!result.success) {
-          return result;
-        }
+        // const result = await addNewSubject(subjectName, state.subjects);
+        // if (!result.success) {
+        //   return result;
+        // }
 
         // Try to add to Firebase if online
         if (state.isFirebaseReady && !state.isOffline) {
-          await FirebaseService.addSubject(subjectName);
+          await FirebaseService.addSubject(subjectName, state.user.uid);
         }
 
-        dispatch({ type: ACTIONS.LOAD_SUBJECTS, payload: result.subjects });
-        return result;
+        // dispatch({ type: ACTIONS.LOAD_SUBJECTS, payload: result.subjects });
+        return { success: true };
       } catch (error) {
         console.error('Error adding subject:', error);
-        // Fallback to local only
-        const result = await addNewSubject(subjectName, state.subjects);
-        if (result.success) {
-          dispatch({ type: ACTIONS.LOAD_SUBJECTS, payload: result.subjects });
-        }
-        return result;
+        return { success: false };
+      } finally {
+        dispatch({ type: ACTIONS.SET_SYNCING, payload: false });
       }
     },
     removeSubject: async (subjectName) => {
+      dispatch({ type: ACTIONS.SET_SYNCING, payload: true });
       try {
         // Remove from local storage
-        const result = await removeSubject(subjectName, state.subjects);
-        if (!result.success) {
-          return result;
-        }
+        // const result = await removeSubject(subjectName, state.subjects);
+        // if (!result.success) {
+        //   return result;
+        // }
 
         // Try to remove from Firebase if online
         if (state.isFirebaseReady && !state.isOffline) {
-          await FirebaseService.deleteSubject(subjectName);
+          await FirebaseService.deleteSubject(subjectName, state.user.uid);
         }
 
-        dispatch({ type: ACTIONS.LOAD_SUBJECTS, payload: result.subjects });
-        return result;
+        // dispatch({ type: ACTIONS.LOAD_SUBJECTS, payload: result.subjects });
+        return { success: true };
       } catch (error) {
         console.error('Error removing subject:', error);
-        // Fallback to local only
-        const result = await removeSubject(subjectName, state.subjects);
-        if (result.success) {
-          dispatch({ type: ACTIONS.LOAD_SUBJECTS, payload: result.subjects });
-        }
-        return result;
+        return { success: false };
+      } finally {
+        dispatch({ type: ACTIONS.SET_SYNCING, payload: false });
       }
     },
     setError: (error) => dispatch({ type: ACTIONS.SET_ERROR, payload: error }),
@@ -267,12 +323,23 @@ export const AppProvider = ({ children }) => {
     requestPermissions: requestAllPermissions,
     // Authentication actions
     signIn: (user) => {
-      console.log('User signed in:', user?.email || 'Unknown');
-      dispatch({ type: ACTIONS.SET_AUTHENTICATED, payload: true });
+      console.log('User signed in:', user.email || 'Unknown');
+      dispatch({ type: ACTIONS.SIGN_IN, payload: user });
     },
     signOut: () => {
       console.log('User signed out');
-      dispatch({ type: ACTIONS.SET_AUTHENTICATED, payload: false });
+      dispatch({ type: ACTIONS.SIGN_OUT });
+    },
+    syncLocal: async (localScans, localSubjects) => {
+      try {
+        dispatch({ type: ACTIONS.SET_SYNCING, payload: true });
+        const result = await FirebaseService.syncLocalToFirebase(localScans, localSubjects, state.user.uid);
+        dispatch({ type: ACTIONS.SET_SYNCING, payload: false });
+        return result;
+      } catch (error) {
+        dispatch({ type: ACTIONS.SET_SYNCING, payload: false });
+        throw error;
+      }
     },
   }), [state.subjects]);
 

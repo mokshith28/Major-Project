@@ -13,134 +13,93 @@ import {
 import { db } from '../config/firebase';
 
 class FirebaseService {
-  static currentUser = null;
-  static unsubscribeScans = null;
-  static unsubscribeSubjects = null;
-
-  // Basic initialization
   static async initialize() {
-    console.log('Firebase service initialized for basic functionality (no authentication)');
-  }
-
-  // Get user ID for data scoping (simplified - no authentication)
-  static getUserId() {
-    return 'local';
+    try {
+      if (!db) throw new Error("Firestore not available");
+      console.log("✅ Firebase service initialized");
+      return true;
+    } catch (error) {
+      console.error("❌ Firebase init failed:", error);
+      return false;
+    }
   }
 
   // ========== SCANS OPERATIONS ==========
 
-  // Add a scan to Firebase (simplified - no authentication required)
-  static async addScan(scan) {
-    try {
-      console.log('Firebase addScan not implemented - using local storage only');
-      return null;
-    } catch (error) {
-      console.error('Error adding scan:', error);
-      throw error;
-    }
+  static async addScan(scan, userId) {
+    const docRef = await addDoc(collection(db, 'users', userId, 'scans'), scan);
+    return docRef.id;
   }
 
-  // Get all scans from Firebase
-  static async getScans() {
-    try {
-      console.log('Firebase getScans not implemented - using local storage only');
-      return [];
-    } catch (error) {
-      console.error('Error getting scans:', error);
-      throw error;
-    }
+  static async getScans(userId) {
+    const q = query(collection(db, 'users', userId, 'scans'), orderBy('timestamp', 'desc'));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({ ...doc.data(), firebaseId: doc.id }));
   }
 
-  // Update a scan in Firebase
-  static async updateScan(scanId, updates) {
-    try {
-      console.log('Firebase updateScan not implemented - using local storage only');
-      return null;
-    } catch (error) {
-      console.error('Error updating scan:', error);
-      throw error;
-    }
+  static async updateScan(scanId, updates, userId) {
+    const docRef = doc(db, 'users', userId, 'scans', scanId);
+    await updateDoc(docRef, updates);
+    return true;
   }
 
-  // Delete a scan from Firebase
-  static async deleteScan(scanId) {
-    try {
-      console.log('Firebase deleteScan not implemented - using local storage only');
-      return null;
-    } catch (error) {
-      console.error('Error deleting scan:', error);
-      throw error;
-    }
+  static async deleteScan(scanId, userId) {
+    const docRef = doc(db, 'users', userId, 'scans', scanId);
+    await deleteDoc(docRef);
+    return true;
   }
 
   // ========== SUBJECTS OPERATIONS ==========
 
-  // Add a subject to Firebase
-  static async addSubject(subjectName) {
-    try {
-      console.log('Firebase addSubject not implemented - using local storage only');
-      return null;
-    } catch (error) {
-      console.error('Error adding subject:', error);
-      throw error;
-    }
+  static async addSubject(subjectName, userId) {
+    const docRef = await addDoc(collection(db, 'users', userId, 'subjects'), { name: subjectName });
+    return docRef.id;
   }
 
-  // Get all subjects from Firebase
-  static async getSubjects() {
-    try {
-      console.log('Firebase getSubjects not implemented - using local storage only');
-      return [];
-    } catch (error) {
-      console.error('Error getting subjects:', error);
-      throw error;
-    }
+  static async getSubjects(userId) {
+    const q = query(collection(db, 'users', userId, 'subjects'), orderBy('name'));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => doc.data().name);
   }
 
-  // Delete a subject from Firebase
-  static async deleteSubject(subjectName) {
-    try {
-      console.log('Firebase deleteSubject not implemented - using local storage only');
-      return null;
-    } catch (error) {
-      console.error('Error deleting subject:', error);
-      throw error;
+  static async deleteSubject(subjectName, userId) {
+    const q = query(collection(db, 'users', userId, 'subjects'), where('name', '==', subjectName));
+    const querySnapshot = await getDocs(q);
+    for (const docSnap of querySnapshot.docs) {
+      await deleteDoc(doc(db, 'users', userId, 'subjects', docSnap.id));
     }
+    return true;
   }
 
   // ========== REAL-TIME LISTENERS ==========
 
-  // Subscribe to scans changes
-  static subscribeToScans(callback) {
-    console.log('Firebase subscribeToScans not implemented - using local storage only');
-    return () => { }; // Return empty unsubscribe function
+  static subscribeToScans(callback, userId) {
+    const q = query(collection(db, 'users', userId, 'scans'), orderBy('timestamp', 'desc'));
+    return onSnapshot(q, (querySnapshot) => {
+      const scans = querySnapshot.docs.map(doc => ({ ...doc.data(), firebaseId: doc.id }));
+      callback(scans);
+    });
   }
 
-  // Subscribe to subjects changes
-  static subscribeToSubjects(callback) {
-    console.log('Firebase subscribeToSubjects not implemented - using local storage only');
-    return () => { }; // Return empty unsubscribe function
+  static subscribeToSubjects(callback, userId) {
+    const q = query(collection(db, 'users', userId, 'subjects'), orderBy('name'));
+    return onSnapshot(q, (querySnapshot) => {
+      const subjects = querySnapshot.docs.map(doc => doc.data().name);
+      callback(subjects);
+    });
   }
 
-  // ========== UTILITY METHODS ==========
+  // ========== SYNC ==========
 
-  // Cleanup method
-  static cleanup() {
-    if (this.unsubscribeScans) {
-      this.unsubscribeScans();
-      this.unsubscribeScans = null;
+  static async syncLocalToFirebase(localScans, localSubjects, userId) {
+    console.log('Sync started...');
+    for (const scan of localScans) {
+      await this.addScan(scan, userId);
     }
-    if (this.unsubscribeSubjects) {
-      this.unsubscribeSubjects();
-      this.unsubscribeSubjects = null;
+    for (const subj of localSubjects) {
+      await this.addSubject(subj, userId);
     }
-    console.log('Firebase service cleaned up');
-  }
-
-  // Sync local data to Firebase (placeholder)
-  static async syncLocalToFirebase(localScans, localSubjects) {
-    console.log('Firebase syncLocalToFirebase not implemented - skipping');
-    return { success: true, message: 'Sync skipped - no authentication' };
+    return { success: true, message: 'Sync completed ✅' };
   }
 }
 

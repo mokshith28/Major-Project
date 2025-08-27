@@ -19,7 +19,7 @@ import SearchBar from './SearchBar';
 import SyncStatusIndicator from './SyncStatusIndicator';
 
 const SubjectsScreen = ({ subjects, onSubjectPress }) => {
-  const { addSubject, removeSubject, savedScans, deleteScan, signOut, isFirebaseReady } = useAppStore();
+  const { addSubject, removeSubject, savedScans, deleteScan } = useAppStore();
   const [showManageModal, setShowManageModal] = useState(false);
   const [newSubjectText, setNewSubjectText] = useState('');
   const [searchText, setSearchText] = useState('');
@@ -48,9 +48,9 @@ const SubjectsScreen = ({ subjects, onSubjectPress }) => {
       return;
     }
 
+    setNewSubjectText('');
     const result = await addSubject(newSubjectText.trim());
     if (result.success) {
-      setNewSubjectText('');
       showToast('Subject added successfully!');
     } else {
       showToast('Subject already exists or could not be added');
@@ -144,23 +144,6 @@ const SubjectsScreen = ({ subjects, onSubjectPress }) => {
             <TouchableOpacity onPress={() => setShowManageModal(true)} style={{ marginLeft: 12, padding: 4 }}>
               <Text style={{ fontSize: 22 }}>✏️</Text>
             </TouchableOpacity>
-            {isFirebaseReady && (
-              <TouchableOpacity
-                onPress={() => {
-                  Alert.alert(
-                    'Sign Out',
-                    'Are you sure you want to sign out?',
-                    [
-                      { text: 'Cancel', style: 'cancel' },
-                      { text: 'Sign Out', style: 'destructive', onPress: signOut }
-                    ]
-                  );
-                }}
-                style={{ marginLeft: 12, padding: 4 }}
-              >
-                <Text style={{ fontSize: 22 }}>🚪</Text>
-              </TouchableOpacity>
-            )}
           </View>
         </View>
         <Text style={YourScansScreenStyles.headerSubtitle}>

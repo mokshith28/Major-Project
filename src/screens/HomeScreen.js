@@ -92,7 +92,7 @@ export default function HomeScreen() {
             backgroundColor: '#ffaaaaff',
             paddingVertical: 8,
             paddingHorizontal: 12,
-            borderRadius: 20,
+            borderRadius: 12,
             borderWidth: 1,
             borderColor: '#000'
           }}
