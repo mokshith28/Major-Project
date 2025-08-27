@@ -164,6 +164,22 @@ const EditScanStyles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  summerizerButtonContainer: {
+    paddingHorizontal: 24,
+    paddingVertical: 20,
+  },
+  summerizeButton: {
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    borderWidth: 1,
+    backgroundColor: Colors.primary
+  },
+  summerizeButtonText: {
+    fontSize: 24,
+    fontWeight: '600',
+    color: 'white',
+  },
 });
 
 export default EditScanStyles;

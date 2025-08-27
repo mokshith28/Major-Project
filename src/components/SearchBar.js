@@ -18,6 +18,7 @@ const SearchBar = ({ value, onChangeText, placeholder }) => (
 
 const styles = StyleSheet.create({
   container: {
+    marginBottom: 16,
     paddingHorizontal: 20,
     paddingVertical: 8,
     backgroundColor: 'white',

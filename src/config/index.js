@@ -1,5 +1,6 @@
 // Configuration constants
 export const API_CONFIG = {
+  HUGGINGFACE_TOKEN: process.env.EXPO_PUBLIC_HUGGINGFACE_TOKEN,
   GOOGLE_VISION_API_KEY: process.env.EXPO_PUBLIC_GOOGLE_VISION_API_KEY,
   GOOGLE_VISION_URL: 'https://vision.googleapis.com/v1/images:annotate',
 };

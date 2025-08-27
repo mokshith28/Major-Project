@@ -16,6 +16,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppStore } from '../../../../src/store/AppStore';
 import { copyToClipboard } from '../../../../src/utils';
 import EditScanStyles from './EditScanStyles';
+import API_CONFIG from '../../../../src/config/index';
 
 export default function EditScan() {
   const { scanId } = useLocalSearchParams();
@@ -28,6 +29,31 @@ export default function EditScan() {
 
   const [editedText, setEditedText] = useState(scan?.text || '');
   const [isModified, setIsModified] = useState(false);
+  const [summary, setSummary] = useState(null);
+  const [showSummaryModal, setShowSummaryModal] = useState(false);
+  const [isSummarizing, setIsSummarizing] = useState(false);
+
+  const summarizeText = async (text) => {
+    try {
+      const response = await fetch(
+        "https://api-inference.huggingface.co/models/facebook/bart-large-cnn",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${API_CONFIG.HUGGINGFACE_TOKEN}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ inputs: text }),
+        }
+      );
+
+      const result = await response.json();
+      return result[0]?.summary_text || "Could not summarize.";
+    } catch (error) {
+      console.error("Summarization error:", error);
+      return "Error generating summary.";
+    }
+  };
 
   // Update edited text when scan changes (in case it gets updated)
   useEffect(() => {
@@ -104,6 +130,23 @@ export default function EditScan() {
       router.back();
     }
   };
+
+  const handleSummerize = async () => {
+    if (!editedText.trim()) {
+      Alert.alert("Error", "Text is empty, nothing to summarize.");
+      return;
+    }
+
+    setIsSummarizing(true);
+    try {
+      const result = await summarizeText(editedText);
+      setSummary(result);
+      setShowSummaryModal(true);
+    } finally {
+      setIsSummarizing(false);
+    }
+  };
+
 
   return (
     <View style={[EditScanStyles.safeArea, { paddingTop: insets.top }]}>
@@ -183,7 +226,68 @@ export default function EditScan() {
             </Text>
           </TouchableOpacity>
         </View>
+        <View style={EditScanStyles.summerizerButtonContainer}>
+          <TouchableOpacity
+            style={[
+              EditScanStyles.summerizeButton,
+              isSummarizing && { backgroundColor: "#aaa" }, // grey out while loading
+            ]}
+            onPress={handleSummerize}
+            disabled={isSummarizing}
+          >
+            <Text style={EditScanStyles.summerizeButtonText}>
+              {isSummarizing ? "Summarizing..." : "Summarize"}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
       </ScrollView>
+
+      {/* // Summerizer Modal */}
+      {showSummaryModal && (
+        <View
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0,0,0,0.5)",
+            justifyContent: "center",
+            alignItems: "center",
+            padding: 20,
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: "white",
+              padding: 20,
+              borderRadius: 10,
+              width: "90%",
+            }}
+          >
+            <Text style={{ fontWeight: "bold", fontSize: 22, marginBottom: 10 }}>
+              📖 Summary
+            </Text>
+            <ScrollView style={{ maxHeight: 300 }}>
+              <Text style={{ fontSize: 16 }}>{summary}</Text>
+            </ScrollView>
+            <TouchableOpacity
+              style={{
+                marginTop: 20,
+                backgroundColor: "#007bff",
+                padding: 10,
+                borderRadius: 8,
+                alignSelf: "flex-end",
+              }}
+              onPress={() => setShowSummaryModal(false)}
+            >
+              <Text style={{ color: "white", fontWeight: "bold" }}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
+
     </View>
   );
 }
