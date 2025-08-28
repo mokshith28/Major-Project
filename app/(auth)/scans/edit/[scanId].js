@@ -16,7 +16,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppStore } from '../../../../src/store/AppStore';
 import { copyToClipboard } from '../../../../src/utils';
 import EditScanStyles from './EditScanStyles';
-import API_CONFIG from '../../../../src/config/index';
+import { API_CONFIG } from '../../../../src/config/index';
 
 export default function EditScan() {
   const { scanId } = useLocalSearchParams();

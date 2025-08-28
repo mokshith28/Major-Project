@@ -172,7 +172,6 @@ const EditScanStyles = StyleSheet.create({
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
-    borderWidth: 1,
     backgroundColor: Colors.primary
   },
   summerizeButtonText: {
