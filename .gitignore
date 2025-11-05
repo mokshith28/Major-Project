@@ -3,6 +3,7 @@ node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+package-lock.json
 
 # Expo
 .expo/
@@ -60,4 +61,3 @@ Thumbs.db
 ehthumbs.db
 
 *.uusver
-package-lock.json

@@ -9,7 +9,8 @@ import {
   Platform,
   ToastAndroid,
   SafeAreaView,
-  StatusBar
+  StatusBar,
+  Modal
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -17,7 +18,7 @@ import * as Speech from 'expo-speech';
 import { useAppStore } from '../../../../src/store/AppStore';
 import { copyToClipboard } from '../../../../src/utils';
 import EditScanStyles from './EditScanStyles';
-import { API_CONFIG } from '../../../../src/config/index';
+import { API_CONFIG, APP_CONFIG } from '../../../../src/config/index';
 
 export default function EditScan() {
   const { scanId } = useLocalSearchParams();
@@ -34,6 +35,10 @@ export default function EditScan() {
   const [showSummaryModal, setShowSummaryModal] = useState(false);
   const [isSummarizing, setIsSummarizing] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [showTranslateModal, setShowTranslateModal] = useState(false);
+  const [translatedText, setTranslatedText] = useState('');
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState('es');
 
   const summarizeText = async (text) => {
     try {
@@ -209,6 +214,57 @@ export default function EditScan() {
     }
   };
 
+  const translateText = async (text, targetLanguage) => {
+    try {
+      const response = await fetch(
+        `${API_CONFIG.GOOGLE_TRANSLATE_URL}?key=${API_CONFIG.GOOGLE_VISION_API_KEY}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            q: text,
+            target: targetLanguage,
+            format: 'text'
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        console.error('Translation API Error:', error);
+        throw new Error('Translation failed');
+      }
+
+      const result = await response.json();
+      return result.data.translations[0].translatedText;
+    } catch (error) {
+      console.error('Translation error:', error);
+      throw error;
+    }
+  };
+
+  const handleTranslate = async (languageCode) => {
+    if (!editedText.trim()) {
+      Alert.alert("Error", "No text to translate.");
+      return;
+    }
+
+    setIsTranslating(true);
+    setSelectedLanguage(languageCode);
+    
+    try {
+      const translated = await translateText(editedText, languageCode);
+      setTranslatedText(translated);
+      setShowTranslateModal(true);
+    } catch (error) {
+      Alert.alert("Error", "Translation failed. Please make sure Google Cloud Translation API is enabled.");
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+
 
   return (
     <View style={[EditScanStyles.safeArea, { paddingTop: insets.top }]}>
@@ -311,6 +367,23 @@ export default function EditScan() {
           </TouchableOpacity>
         </View>
 
+        {/* Translate Button */}
+        <View style={EditScanStyles.summerizerButtonContainer}>
+          <TouchableOpacity
+            style={[
+              EditScanStyles.summerizeButton,
+              { backgroundColor: "#28a745" },
+              isTranslating && { backgroundColor: "#aaa" },
+            ]}
+            onPress={() => setShowTranslateModal(true)}
+            disabled={isTranslating}
+          >
+            <Text style={EditScanStyles.summerizeButtonText}>
+              {isTranslating ? "Translating..." : "🌐 Translate"}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
       </ScrollView>
 
       {/* // Summerizer Modal */}
@@ -356,6 +429,135 @@ export default function EditScan() {
             </TouchableOpacity>
           </View>
         </View>
+      )}
+
+      {/* Translate Modal */}
+      {showTranslateModal && !translatedText && (
+        <Modal
+          visible={showTranslateModal}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setShowTranslateModal(false)}
+        >
+          <View style={{
+            flex: 1,
+            backgroundColor: "rgba(0,0,0,0.5)",
+            justifyContent: "center",
+            alignItems: "center",
+            padding: 20,
+          }}>
+            <View style={{
+              backgroundColor: "white",
+              padding: 20,
+              borderRadius: 10,
+              width: "90%",
+              maxHeight: "80%",
+            }}>
+              <Text style={{ fontWeight: "bold", fontSize: 22, marginBottom: 15 }}>
+                🌐 Translate to...
+              </Text>
+              <ScrollView style={{ maxHeight: 400 }}>
+                {APP_CONFIG.TRANSLATE_LANGUAGES.map((lang) => (
+                  <TouchableOpacity
+                    key={lang.code}
+                    style={{
+                      padding: 15,
+                      borderBottomWidth: 1,
+                      borderBottomColor: "#eee",
+                      flexDirection: "row",
+                      alignItems: "center",
+                    }}
+                    onPress={() => handleTranslate(lang.code)}
+                  >
+                    <Text style={{ fontSize: 24, marginRight: 10 }}>{lang.flag}</Text>
+                    <Text style={{ fontSize: 18 }}>{lang.name}</Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+              <TouchableOpacity
+                style={{
+                  marginTop: 15,
+                  backgroundColor: "#6c757d",
+                  padding: 12,
+                  borderRadius: 8,
+                  alignItems: "center",
+                }}
+                onPress={() => setShowTranslateModal(false)}
+              >
+                <Text style={{ color: "white", fontWeight: "bold" }}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      )}
+
+      {/* Translated Text Modal */}
+      {translatedText && (
+        <Modal
+          visible={!!translatedText}
+          transparent
+          animationType="slide"
+          onRequestClose={() => {
+            setTranslatedText('');
+            setShowTranslateModal(false);
+          }}
+        >
+          <View style={{
+            flex: 1,
+            backgroundColor: "rgba(0,0,0,0.5)",
+            justifyContent: "center",
+            alignItems: "center",
+            padding: 20,
+          }}>
+            <View style={{
+              backgroundColor: "white",
+              padding: 20,
+              borderRadius: 10,
+              width: "90%",
+            }}>
+              <Text style={{ fontWeight: "bold", fontSize: 22, marginBottom: 10 }}>
+                🌐 Translation ({APP_CONFIG.TRANSLATE_LANGUAGES.find(l => l.code === selectedLanguage)?.name})
+              </Text>
+              <ScrollView style={{ maxHeight: 300 }}>
+                <Text style={{ fontSize: 16, lineHeight: 24 }}>{translatedText}</Text>
+              </ScrollView>
+              <View style={{ flexDirection: "row", marginTop: 20, gap: 10 }}>
+                <TouchableOpacity
+                  style={{
+                    flex: 1,
+                    backgroundColor: "#007bff",
+                    padding: 12,
+                    borderRadius: 8,
+                    alignItems: "center",
+                  }}
+                  onPress={() => {
+                    copyToClipboard(translatedText);
+                    if (Platform.OS === 'android') {
+                      ToastAndroid.show('Translation copied!', ToastAndroid.SHORT);
+                    }
+                  }}
+                >
+                  <Text style={{ color: "white", fontWeight: "bold" }}>📋 Copy</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{
+                    flex: 1,
+                    backgroundColor: "#6c757d",
+                    padding: 12,
+                    borderRadius: 8,
+                    alignItems: "center",
+                  }}
+                  onPress={() => {
+                    setTranslatedText('');
+                    setShowTranslateModal(false);
+                  }}
+                >
+                  <Text style={{ color: "white", fontWeight: "bold" }}>Close</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
       )}
 
     </View>
