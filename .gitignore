@@ -60,3 +60,4 @@ Thumbs.db
 ehthumbs.db
 
 *.uusver
+package-lock.json
