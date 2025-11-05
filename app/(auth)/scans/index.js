@@ -31,22 +31,23 @@ export default function ScansIndex() {
     // Add all available subjects with their scan counts
     subjects.forEach(subject => {
       subjectList.push({
-        name: subject,
-        count: groupedScans[subject] ? groupedScans[subject].length : 0,
-        scans: groupedScans[subject] || []
+        name: subject.name,
+        firebaseId: subject.firebaseId,
+        count: groupedScans[subject.name] ? groupedScans[subject.name].length : 0,
+        scans: groupedScans[subject.name] || []
       });
     });
 
     // Add any additional subjects that exist in scans but not in available subjects
-    Object.keys(groupedScans).forEach(subject => {
-      if (!subjects.includes(subject)) {
-        subjectList.push({
-          name: subject,
-          count: groupedScans[subject].length,
-          scans: groupedScans[subject]
-        });
-      }
-    });
+    // Object.keys(groupedScans).forEach(subject => {
+    //   if (!subjects.includes(subject)) {
+    //     subjectList.push({
+    //       name: subject,
+    //       count: groupedScans[subject].length,
+    //       scans: groupedScans[subject]
+    //     });
+    //   }
+    // });
 
     return subjectList.sort((a, b) => a.name.localeCompare(b.name));
   }, [groupedScans, subjects]);

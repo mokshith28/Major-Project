@@ -51,23 +51,20 @@ class FirebaseService {
 
   // ========== SUBJECTS OPERATIONS ==========
 
-  static async addSubject(subjectName, userId) {
-    const docRef = await addDoc(collection(db, 'users', userId, 'subjects'), { name: subjectName });
+  static async addSubject(subject, userId) {
+    const docRef = await addDoc(collection(db, 'users', userId, 'subjects'), subject);
     return docRef.id;
   }
 
   static async getSubjects(userId) {
-    const q = query(collection(db, 'users', userId, 'subjects'), orderBy('name'));
+    const q = query(collection(db, 'users', userId, 'subjects'), orderBy('timestamp', 'desc'));
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => doc.data().name);
+    return querySnapshot.docs.map(doc => ({ ...doc.data(), firebaseId: doc.id }));
   }
 
-  static async deleteSubject(subjectName, userId) {
-    const q = query(collection(db, 'users', userId, 'subjects'), where('name', '==', subjectName));
-    const querySnapshot = await getDocs(q);
-    for (const docSnap of querySnapshot.docs) {
-      await deleteDoc(doc(db, 'users', userId, 'subjects', docSnap.id));
-    }
+  static async deleteSubject(subjectId, userId) {
+    const docRef = doc(db, 'users', userId, 'subjects', subjectId);
+    await deleteDoc(docRef);
     return true;
   }
 
@@ -82,10 +79,10 @@ class FirebaseService {
   }
 
   static subscribeToSubjects(callback, userId) {
-    const q = query(collection(db, 'users', userId, 'subjects'), orderBy('name'));
+    const q = query(collection(db, 'users', userId, 'subjects'), orderBy('timestamp', 'desc'));
     return onSnapshot(q, (querySnapshot) => {
-      const subjects = querySnapshot.docs.map(doc => doc.data().name);
-      callback(subjects);
+      const scans = querySnapshot.docs.map(doc => ({ ...doc.data(), firebaseId: doc.id }));
+      callback(scans);
     });
   }
 

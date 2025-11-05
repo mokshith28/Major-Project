@@ -18,6 +18,7 @@ export default function HomeScreen() {
     setError,
     signOut,
     resetApp,
+    user
   } = useAppStore();
 
   const handleTakePhoto = () => {
@@ -83,25 +84,43 @@ export default function HomeScreen() {
 
       {/* Logout Button - only show when authenticated */}
       {isAuthenticated && (
-        <TouchableOpacity
-          style={{
+        <View>
+          <Text style={{
             position: 'absolute',
-            top: insets.top + 10,
-            right: 20,
+            top: insets.top,
+            left: 10,
             zIndex: 1000,
-            backgroundColor: '#ffaaaaff',
+            backgroundColor: '#c6ffaaff',
             paddingVertical: 8,
             paddingHorizontal: 12,
             borderRadius: 12,
             borderWidth: 1,
-            borderColor: '#000'
-          }}
-          onPress={handleLogout}
-        >
-          <Text style={{ color: '#000', fontSize: 14, fontWeight: '600' }}>
-            Sign Out
+            borderColor: '#000',
+            fontSize: 14,
+            fontWeight: 600
+          }}>
+            Welcome, {user.email}
           </Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={{
+              position: 'absolute',
+              top: insets.top,
+              right: 14,
+              zIndex: 1000,
+              backgroundColor: '#ffaaaaff',
+              paddingVertical: 8,
+              paddingHorizontal: 12,
+              borderRadius: 12,
+              borderWidth: 1,
+              borderColor: '#000'
+            }}
+            onPress={handleLogout}
+          >
+            <Text style={{ color: '#000', fontSize: 14, fontWeight: '600' }}>
+              Sign Out
+            </Text>
+          </TouchableOpacity>
+        </View>
       )}
 
       <ScrollView

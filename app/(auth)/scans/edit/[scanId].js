@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import * as Speech from 'expo-speech';
 import { useAppStore } from '../../../../src/store/AppStore';
 import { copyToClipboard } from '../../../../src/utils';
 import EditScanStyles from './EditScanStyles';
@@ -32,26 +33,53 @@ export default function EditScan() {
   const [summary, setSummary] = useState(null);
   const [showSummaryModal, setShowSummaryModal] = useState(false);
   const [isSummarizing, setIsSummarizing] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
 
   const summarizeText = async (text) => {
     try {
       const response = await fetch(
-        "https://api-inference.huggingface.co/models/facebook/bart-large-cnn",
+        "https://router.huggingface.co/hf-inference/models/facebook/bart-large-cnn",
         {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${API_CONFIG.HUGGINGFACE_TOKEN}`,
+            "Authorization": `Bearer ${API_CONFIG.HUGGINGFACE_TOKEN}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ inputs: text }),
+          body: JSON.stringify({
+            inputs: text,
+            provider: "hf-inference"
+          }),
         }
       );
 
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("API Error:", response.status, errorText);
+
+        if (response.status === 503) {
+          return "Model is loading. Please wait 20 seconds and try again.";
+        } else if (response.status === 401 || response.status === 403) {
+          return "Invalid API token. Please check your Hugging Face token has 'Inference Providers' permission.";
+        }
+
+        return `Error: ${response.status} - ${errorText}`;
+      }
+
       const result = await response.json();
-      return result[0]?.summary_text || "Could not summarize.";
+
+      // API returns array with summary_text
+      if (Array.isArray(result) && result.length > 0 && result[0]?.summary_text) {
+        console.log("✅ Summary generated successfully");
+        return result[0].summary_text;
+      } else if (result?.summary_text) {
+        return result.summary_text;
+      }
+
+      console.error("Unexpected response format:", result);
+      return "Could not generate summary.";
     } catch (error) {
       console.error("Summarization error:", error);
-      return "Error generating summary.";
+      return `Error: ${error.message}`;
     }
   };
 
@@ -61,6 +89,13 @@ export default function EditScan() {
       setEditedText(scan.text);
     }
   }, [scan?.text, editedText, isModified]);
+
+  // Stop speech when component unmounts
+  useEffect(() => {
+    return () => {
+      Speech.stop();
+    };
+  }, []);
 
   if (!scan) {
     return (
@@ -147,6 +182,33 @@ export default function EditScan() {
     }
   };
 
+  const handleTextToSpeech = async () => {
+    if (!editedText.trim()) {
+      Alert.alert("Error", "No text to read.");
+      return;
+    }
+
+    if (isSpeaking) {
+      // Stop speaking
+      Speech.stop();
+      setIsSpeaking(false);
+    } else {
+      // Start speaking
+      setIsSpeaking(true);
+      Speech.speak(editedText, {
+        language: 'en-US',
+        pitch: 1.0,
+        rate: 0.9,
+        onDone: () => setIsSpeaking(false),
+        onStopped: () => setIsSpeaking(false),
+        onError: () => {
+          setIsSpeaking(false);
+          Alert.alert("Error", "Could not read text aloud.");
+        }
+      });
+    }
+  };
+
 
   return (
     <View style={[EditScanStyles.safeArea, { paddingTop: insets.top }]}>
@@ -181,6 +243,14 @@ export default function EditScan() {
                   Modified
                 </Text>
               )}
+              <TouchableOpacity
+                style={EditScanStyles.copyButton}
+                onPress={handleTextToSpeech}
+              >
+                <Text style={EditScanStyles.copyButtonText}>
+                  {isSpeaking ? '🔇' : '🔊'}
+                </Text>
+              </TouchableOpacity>
               <TouchableOpacity
                 style={EditScanStyles.copyButton}
                 onPress={handleCopy}

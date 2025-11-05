@@ -110,13 +110,13 @@ export const YourScansScreenStyles = StyleSheet.create({
   subjectItem: {
     backgroundColor: Colors.surface,
     padding: 20,
-    marginBottom: 16,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: Colors.borderDark,
+    borderColor: Colors.black,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    flex: 1
   },
   subjectHeader: {
     flex: 1,
@@ -202,6 +202,24 @@ export const YourScansScreenStyles = StyleSheet.create({
     fontSize: 18,
     color: 'white',
   },
+  subjectItemContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    marginBottom: 16,
+  },
+  shareButton: {
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.shadow,
+    borderRadius: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    minWidth: 60,
+    height: 95,
+  }
 });
 
 export default YourScansScreenStyles;

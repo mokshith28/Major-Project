@@ -27,7 +27,7 @@ const SubjectActions = ({ onSave, onNewPhoto }) => {
   // Set selected subject when subjects are loaded and no subject is selected
   useEffect(() => {
     if (subjects.length > 0 && !selectedSubject) {
-      setSelectedSubject(subjects[0]);
+      setSelectedSubject(subjects[0].name);
     }
   }, [subjects, selectedSubject]);
 
@@ -54,7 +54,7 @@ const SubjectActions = ({ onSave, onNewPhoto }) => {
           style={SubjectActionsStyles.subjectPicker}
         >
           {subjects.map(subject => (
-            <Picker.Item key={subject} label={subject} value={subject} />
+            <Picker.Item key={subject.name} label={subject.name} value={subject.name} />
           ))}
         </Picker>
       </View>

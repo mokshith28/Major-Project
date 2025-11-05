@@ -272,7 +272,7 @@ export const AppProvider = ({ children }) => {
         // dispatch({ type: ACTIONS.LOAD_SCANS, payload: scans });
       }
     },
-    addSubject: async (subjectName) => {
+    addSubject: async (subject) => {
       dispatch({ type: ACTIONS.SET_SYNCING, payload: true });
       try {
         // Add to local storage first
@@ -283,7 +283,8 @@ export const AppProvider = ({ children }) => {
 
         // Try to add to Firebase if online
         if (state.isFirebaseReady && !state.isOffline) {
-          await FirebaseService.addSubject(subjectName, state.user.uid);
+          const firebaseId = await FirebaseService.addSubject(subject, state.user.uid);
+          subject.firebaseId = firebaseId;
         }
 
         // dispatch({ type: ACTIONS.LOAD_SUBJECTS, payload: result.subjects });
@@ -306,7 +307,7 @@ export const AppProvider = ({ children }) => {
 
         // Try to remove from Firebase if online
         if (state.isFirebaseReady && !state.isOffline) {
-          await FirebaseService.deleteSubject(subjectName, state.user.uid);
+          await FirebaseService.deleteSubject(subject.firebaseId, state.user.uid);
         }
 
         // dispatch({ type: ACTIONS.LOAD_SUBJECTS, payload: result.subjects });

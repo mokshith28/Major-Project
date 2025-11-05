@@ -17,6 +17,7 @@ import { SubjectActionsStyles } from '../styles/SubjectActionsStyles';
 import { useAppStore } from '../store/AppStore';
 import SearchBar from './SearchBar';
 import SyncStatusIndicator from './SyncStatusIndicator';
+import { copyToClipboard } from '../utils';
 
 const SubjectsScreen = ({ subjects, onSubjectPress }) => {
   const { addSubject, removeSubject, savedScans, deleteScan } = useAppStore();
@@ -47,9 +48,13 @@ const SubjectsScreen = ({ subjects, onSubjectPress }) => {
       showToast('Please enter a subject name');
       return;
     }
+    const newSubject = {
+      name: newSubjectText.trim(),
+      timestamp: Date.now(),
+    };
 
     setNewSubjectText('');
-    const result = await addSubject(newSubjectText.trim());
+    const result = await addSubject(newSubject);
     if (result.success) {
       showToast('Subject added successfully!');
     } else {
@@ -106,33 +111,45 @@ const SubjectsScreen = ({ subjects, onSubjectPress }) => {
     showToast(`Deleted subject and ${scansToDelete.length} scan${scansToDelete.length === 1 ? '' : 's'}`);
   };
 
+  const handleExportSubject = async (item) => {
+    await copyToClipboard(item.firebaseID);
+  };
+
   const renderSubjectItem = ({ item }) => (
-    <TouchableOpacity
-      style={[
-        YourScansScreenStyles.subjectItem,
-        item.count === 0 && YourScansScreenStyles.emptySubjectItem
-      ]}
-      onPress={() => onSubjectPress(item)}
-    >
-      <View style={YourScansScreenStyles.subjectHeader}>
+    <View style={YourScansScreenStyles.subjectItemContainer}>
+      <TouchableOpacity
+        style={[
+          YourScansScreenStyles.subjectItem,
+          item.count === 0 && YourScansScreenStyles.emptySubjectItem
+        ]}
+        onPress={() => onSubjectPress(item)}
+      >
+        <View style={YourScansScreenStyles.subjectHeader}>
+          <Text style={[
+            YourScansScreenStyles.subjectTitle,
+            item.count === 0 && YourScansScreenStyles.emptySubjectTitle
+          ]}>
+            📚 {item.name}
+          </Text>
+          <Text style={[
+            YourScansScreenStyles.subjectCount,
+            item.count === 0 && YourScansScreenStyles.emptySubjectCount
+          ]}>
+            {item.count} {item.count === 1 ? 'scan' : 'scans'}
+          </Text>
+        </View>
         <Text style={[
-          YourScansScreenStyles.subjectTitle,
-          item.count === 0 && YourScansScreenStyles.emptySubjectTitle
-        ]}>
-          📚 {item.name}
-        </Text>
-        <Text style={[
-          YourScansScreenStyles.subjectCount,
-          item.count === 0 && YourScansScreenStyles.emptySubjectCount
-        ]}>
-          {item.count} {item.count === 1 ? 'scan' : 'scans'}
-        </Text>
-      </View>
-      <Text style={[
-        YourScansScreenStyles.subjectArrow,
-        item.count === 0 && YourScansScreenStyles.emptySubjectArrow
-      ]}>›</Text>
-    </TouchableOpacity>
+          YourScansScreenStyles.subjectArrow,
+          item.count === 0 && YourScansScreenStyles.emptySubjectArrow
+        ]}>›</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={YourScansScreenStyles.shareButton}
+        onPress={() => handleExportSubject(item)}
+      >
+        <Text style={YourScansScreenStyles.deleteButtonText}>⬆️</Text>
+      </TouchableOpacity>
+    </View>
   );
 
   return (
