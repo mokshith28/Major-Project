@@ -15,6 +15,7 @@ import {
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Speech from 'expo-speech';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { useAppStore } from '../../../../src/store/AppStore';
 import { copyToClipboard } from '../../../../src/utils';
 import EditScanStyles from './EditScanStyles';
@@ -39,6 +40,9 @@ export default function EditScan() {
   const [translatedText, setTranslatedText] = useState('');
   const [isTranslating, setIsTranslating] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState('es');
+  const [questions, setQuestions] = useState([]);
+  const [showQuestionsModal, setShowQuestionsModal] = useState(false);
+  const [isGeneratingQuestions, setIsGeneratingQuestions] = useState(false);
 
   const summarizeText = async (text) => {
     try {
@@ -253,7 +257,7 @@ export default function EditScan() {
 
     setIsTranslating(true);
     setSelectedLanguage(languageCode);
-    
+
     try {
       const translated = await translateText(editedText, languageCode);
       setTranslatedText(translated);
@@ -262,6 +266,59 @@ export default function EditScan() {
       Alert.alert("Error", "Translation failed. Please make sure Google Cloud Translation API is enabled.");
     } finally {
       setIsTranslating(false);
+    }
+  };
+
+  const generateQuestions = async (context) => {
+    try {
+      const genAI = new GoogleGenerativeAI(API_CONFIG.GEMINI_API_KEY);
+      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+      const prompt = `Generate exactly 5 exam-style questions from the following text. Format each question on a new line, numbered 1-5:\n\n${context}`;
+
+      const result = await model.generateContent(prompt);
+      const responseText = result.response.text();
+
+      console.log("✅ Gemini Response:", responseText);
+
+      // Parse the response to extract questions
+      const lines = responseText.split('\n').filter(line => line.trim().length > 0);
+      const questionsArray = [];
+
+      lines.forEach((line, index) => {
+        // Remove numbering like "1.", "1)", etc.
+        const cleanLine = line.replace(/^\d+[\.\)\-]\s*/, '').trim();
+        if (cleanLine.length > 10) { // Valid question should be longer than 10 chars
+          questionsArray.push({
+            id: questionsArray.length + 1,
+            question: cleanLine
+          });
+        }
+      });
+
+      // Ensure we have exactly 5 questions
+      return questionsArray.slice(0, 5);
+    } catch (error) {
+      console.error("❌ Question generation error:", error);
+      throw error;
+    }
+  };
+
+  const handleGenerateQuestions = async () => {
+    if (!editedText.trim()) {
+      Alert.alert("Error", "Text is empty, nothing to generate questions from.");
+      return;
+    }
+
+    setIsGeneratingQuestions(true);
+    try {
+      const generatedQuestions = await generateQuestions(editedText);
+      setQuestions(generatedQuestions);
+      setShowQuestionsModal(true);
+    } catch (error) {
+      Alert.alert("Error", error.message || "Failed to generate questions. Please check your Gemini API key.");
+    } finally {
+      setIsGeneratingQuestions(false);
     }
   };
 
@@ -380,6 +437,23 @@ export default function EditScan() {
           >
             <Text style={EditScanStyles.summerizeButtonText}>
               {isTranslating ? "Translating..." : "🌐 Translate"}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Generate Questions Button */}
+        <View style={EditScanStyles.summerizerButtonContainer}>
+          <TouchableOpacity
+            style={[
+              EditScanStyles.summerizeButton,
+              { backgroundColor: "#17a2b8" },
+              isGeneratingQuestions && { backgroundColor: "#aaa" },
+            ]}
+            onPress={handleGenerateQuestions}
+            disabled={isGeneratingQuestions}
+          >
+            <Text style={EditScanStyles.summerizeButtonText}>
+              {isGeneratingQuestions ? "Generating..." : "❓ Generate Questions"}
             </Text>
           </TouchableOpacity>
         </View>
@@ -551,6 +625,103 @@ export default function EditScan() {
                     setTranslatedText('');
                     setShowTranslateModal(false);
                   }}
+                >
+                  <Text style={{ color: "white", fontWeight: "bold" }}>Close</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      )}
+
+      {/* Questions Modal */}
+      {showQuestionsModal && (
+        <Modal
+          visible={showQuestionsModal}
+          transparent
+          animationType="slide"
+          onRequestClose={() => setShowQuestionsModal(false)}
+        >
+          <View style={{
+            flex: 1,
+            backgroundColor: "rgba(0,0,0,0.5)",
+            justifyContent: "center",
+            alignItems: "center",
+            padding: 20,
+          }}>
+            <View style={{
+              backgroundColor: "white",
+              padding: 20,
+              borderRadius: 10,
+              width: "90%",
+              maxHeight: "80%",
+            }}>
+              <Text style={{ fontWeight: "bold", fontSize: 22, marginBottom: 15 }}>
+                ❓ Study Questions ({questions.length})
+              </Text>
+              <ScrollView style={{ maxHeight: 400 }}>
+                {questions.map((q) => (
+                  <View
+                    key={q.id}
+                    style={{
+                      padding: 15,
+                      marginBottom: 10,
+                      backgroundColor: "#f8f9fa",
+                      borderRadius: 8,
+                      borderLeftWidth: 4,
+                      borderLeftColor: "#17a2b8",
+                    }}
+                  >
+                    <Text style={{ fontSize: 16, fontWeight: "600", color: "#17a2b8" }}>
+                      Q{q.id}
+                    </Text>
+                    <Text style={{ fontSize: 16, marginTop: 5, lineHeight: 22 }}>
+                      {q.question}
+                    </Text>
+                  </View>
+                ))}
+              </ScrollView>
+              <View style={{ flexDirection: "row", marginTop: 20, gap: 10 }}>
+                <TouchableOpacity
+                  style={{
+                    flex: 1,
+                    backgroundColor: "#007bff",
+                    padding: 12,
+                    borderRadius: 8,
+                    alignItems: "center",
+                  }}
+                  onPress={() => {
+                    const questionsText = questions.map((q, i) => `Q${i + 1}: ${q.question}`).join('\n\n');
+                    copyToClipboard(questionsText);
+                    if (Platform.OS === 'android') {
+                      ToastAndroid.show('Questions copied!', ToastAndroid.SHORT);
+                    }
+                  }}
+                >
+                  <Text style={{ color: "white", fontWeight: "bold" }}>📋 Copy All</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{
+                    flex: 1,
+                    backgroundColor: "#28a745",
+                    padding: 12,
+                    borderRadius: 8,
+                    alignItems: "center",
+                  }}
+                  onPress={handleGenerateQuestions}
+                  disabled={isGeneratingQuestions}
+                >
+                  <Text style={{ color: "white", fontWeight: "bold" }}>🔄 Regenerate</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{
+                    flex: 1,
+                    backgroundColor: "#6c757d",
+                    padding: 12,
+                    borderRadius: 8,
+                    alignItems: "center",
+                  }}
+                  onPress={() => setShowQuestionsModal(false)}
                 >
                   <Text style={{ color: "white", fontWeight: "bold" }}>Close</Text>
                 </TouchableOpacity>
